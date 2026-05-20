@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>小组互评评价表</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: #f5f7fa; color: #333; padding: 16px; padding-bottom: 100px;
+  }
+  .header {
+    text-align: center; padding: 20px 0 16px;
+  }
+  .header h1 { font-size: 22px; color: #1a1a2e; }
+  .header p { font-size: 14px; color: #666; margin-top: 6px; }
+  .card {
+    background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .card-title {
+    font-size: 16px; font-weight: 600; color: #1a1a2e; margin-bottom: 12px;
+    display: flex; align-items: center;
+  }
+  .card-title .num {
+    display: inline-flex; width: 24px; height: 24px; border-radius: 50%;
+    background: #4a6cf7; color: #fff; font-size: 13px; align-items: center;
+    justify-content: center; margin-right: 8px; flex-shrink: 0;
+  }
+  .card-desc { font-size: 13px; color: #888; margin-bottom: 12px; }
+  .form-group { margin-bottom: 16px; }
+  .form-group:last-child { margin-bottom: 0; }
+  label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 8px; color: #444; }
+  select, textarea {
+    width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 8px;
+    font-size: 15px; background: #fff; appearance: auto; color: #333;
+  }
+  select:focus, textarea:focus { outline: none; border-color: #4a6cf7; box-shadow: 0 0 0 3px rgba(74,108,247,0.12); }
+  textarea { resize: vertical; min-height: 60px; }
+  .rating-group { display: flex; gap: 8px; justify-content: space-between; }
+  .rating-btn {
+    flex: 1; text-align: center; padding: 10px 0; border-radius: 8px;
+    border: 1.5px solid #e0e0e0; background: #fafafa; font-size: 15px; font-weight: 500;
+    cursor: pointer; transition: all 0.15s; color: #555;
+  }
+  .rating-btn:hover { border-color: #4a6cf7; }
+  .rating-btn.selected { background: #4a6cf7; color: #fff; border-color: #4a6cf7; }
+  .rating-btn small { display: block; font-size: 10px; font-weight: 400; opacity: 0.7; margin-top: 2px; }
+  .rating-btn.selected small { opacity: 0.85; }
+  .submit-btn {
+    width: 100%; padding: 14px; border: none; border-radius: 10px;
+    background: linear-gradient(135deg, #4a6cf7, #6366f1); color: #fff;
+    font-size: 17px; font-weight: 600; cursor: pointer;
+    box-shadow: 0 4px 14px rgba(74,108,247,0.3);
+  }
+  .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .submit-btn:active { transform: scale(0.98); }
+  .success-msg {
+    display: none; text-align: center; padding: 40px 20px;
+  }
+  .success-msg .icon { font-size: 48px; color: #22c55e; margin-bottom: 16px; }
+  .success-msg h2 { font-size: 20px; margin-bottom: 8px; }
+  .success-msg p { color: #666; font-size: 14px; }
+  .error-msg { color: #ef4444; font-size: 13px; margin-top: 6px; display: none; }
+  .footer { text-align: center; font-size: 12px; color: #aaa; margin-top: 20px; }
+  .progress-bar {
+    height: 4px; background: #e0e0e0; border-radius: 2px; margin-bottom: 20px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: linear-gradient(90deg, #4a6cf7, #6366f1);
+    border-radius: 2px; transition: width 0.3s; width: 0%;
+  }
+  .progress-text { text-align: right; font-size: 12px; color: #888; margin-top: 4px; }
+  .warning-banner {
+    background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 10px 14px;
+    font-size: 13px; color: #92400e; margin-bottom: 16px; display: none;
+  }
+  @media (max-width: 380px) {
+    .rating-group { gap: 4px; }
+    .rating-btn { font-size: 13px; padding: 8px 0; }
+  }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <div class="header">
+    <h1>📋 小组互评评价表</h1>
+    <p>每人可评价多个小组，每个小组提交一次</p>
+  </div>
+
+  <div class="warning-banner" id="warningBanner">
+    ⚠️ 您已评价过该小组，请选择其他小组进行评价
+  </div>
+
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="progress-text" id="progressText">0 / 8 项已填</div>
+
+  <div class="card" id="formCard">
+    <div class="card-title"><span class="num">1</span> 您所在的小组</div>
+    <div class="form-group">
+      <select id="evaluatorGroup">
+        <option value="">请选择</option>
+        <option value="1">第1组</option><option value="2">第2组</option>
+        <option value="3">第3组</option><option value="4">第4组</option>
+        <option value="5">第5组</option><option value="6">第6组</option>
+        <option value="7">第7组</option><option value="8">第8组</option>
+        <option value="9">第9组</option>
+      </select>
+    </div>
+
+    <div class="card-title" style="margin-top:20px;"><span class="num">2</span> 要评价的小组</div>
+    <div class="form-group">
+      <select id="targetGroup">
+        <option value="">请选择</option>
+        <option value="1">第1组</option><option value="2">第2组</option>
+        <option value="3">第3组</option><option value="4">第4组</option>
+        <option value="5">第5组</option><option value="6">第6组</option>
+        <option value="7">第7组</option><option value="8">第8组</option>
+        <option value="9">第9组</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="num">3</span> 研究内容的价值</div>
+    <div class="card-desc">选题是否有意义、是否有新意</div>
+    <div class="rating-group" id="r1">
+      <div class="rating-btn" data-val="1">1<small>很差</small></div>
+      <div class="rating-btn" data-val="2">2<small>较差</small></div>
+      <div class="rating-btn" data-val="3">3<small>一般</small></div>
+      <div class="rating-btn" data-val="4">4<small>良好</small></div>
+      <div class="rating-btn" data-val="5">5<small>优秀</small></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="num">4</span> 论证与理据</div>
+    <div class="card-desc">论据是否充分、数据/文献是否可靠</div>
+    <div class="rating-group" id="r2">
+      <div class="rating-btn" data-val="1">1<small>很差</small></div>
+      <div class="rating-btn" data-val="2">2<small>较差</small></div>
+      <div class="rating-btn" data-val="3">3<small>一般</small></div>
+      <div class="rating-btn" data-val="4">4<small>良好</small></div>
+      <div class="rating-btn" data-val="5">5<small>优秀</small></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="num">5</span> 汇报清晰度</div>
+    <div class="card-desc">表达是否清晰、结构是否合理</div>
+    <div class="rating-group" id="r3">
+      <div class="rating-btn" data-val="1">1<small>很差</small></div>
+      <div class="rating-btn" data-val="2">2<small>较差</small></div>
+      <div class="rating-btn" data-val="3">3<small>一般</small></div>
+      <div class="rating-btn" data-val="4">4<small>良好</small></div>
+      <div class="rating-btn" data-val="5">5<small>优秀</small></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="num">6</span> 协作体现</div>
+    <div class="card-desc">是否体现了小组合作成果、分工是否可感</div>
+    <div class="rating-group" id="r4">
+      <div class="rating-btn" data-val="1">1<small>很差</small></div>
+      <div class="rating-btn" data-val="2">2<small>较差</small></div>
+      <div class="rating-btn" data-val="3">3<small>一般</small></div>
+      <div class="rating-btn" data-val="4">4<small>良好</small></div>
+      <div class="rating-btn" data-val="5">5<small>优秀</small></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="num">7</span> 互动质量</div>
+    <div class="card-desc">对其他小组提问的回应是否认真、有深度</div>
+    <div class="rating-group" id="r5">
+      <div class="rating-btn" data-val="1">1<small>很差</small></div>
+      <div class="rating-btn" data-val="2">2<small>较差</small></div>
+      <div class="rating-btn" data-val="3">3<small>一般</small></div>
+      <div class="rating-btn" data-val="4">4<small>良好</small></div>
+      <div class="rating-btn" data-val="5">5<small>优秀</small></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="num">8</span> 整体印象</div>
+    <div class="card-desc">综合感受</div>
+    <div class="rating-group" id="r6">
+      <div class="rating-btn" data-val="1">1<small>很差</small></div>
+      <div class="rating-btn" data-val="2">2<small>较差</small></div>
+      <div class="rating-btn" data-val="3">3<small>一般</small></div>
+      <div class="rating-btn" data-val="4">4<small>良好</small></div>
+      <div class="rating-btn" data-val="5">5<small>优秀</small></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="num">9</span> 这个小组做得最好的方面是什么？</div>
+    <textarea id="qBest" placeholder="请简要说明..." rows="2"></textarea>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="num">10</span> 给他们提一条具体的改进建议</div>
+    <textarea id="qImprove" placeholder="请简要说明..." rows="2"></textarea>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="num">11</span> 你们小组从他们那里学到了什么？</div>
+    <textarea id="qLearn" placeholder="请简要说明..." rows="2"></textarea>
+  </div>
+
+  <button class="submit-btn" id="submitBtn" onclick="submitForm()">提交评价</button>
+  <div class="error-msg" id="errorMsg">请完成所有必填项</div>
+  <div class="footer">评价数据保存在本地，请放心填写</div>
+</div>
+
+<div class="success-msg" id="successMsg">
+  <div class="icon">✓</div>
+  <h2>提交成功！</h2>
+  <p>如需评价其他小组，请重新填写</p>
+  <button class="submit-btn" style="margin-top:20px;background:linear-gradient(135deg,#6366f1,#4a6cf7);" onclick="resetForm()">继续评价</button>
+</div>
+
+<script>
+const RATING_IDS = ['r1','r2','r3','r4','r5','r6'];
+const ratings = {};
+
+RATING_IDS.forEach(id => {
+  const container = document.getElementById(id);
+  container.querySelectorAll('.rating-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      container.querySelectorAll('.rating-btn').forEach(b => b.classList.remove('selected'));
+      this.classList.add('selected');
+      ratings[id] = parseInt(this.dataset.val);
+      updateProgress();
+    });
+  });
+});
+
+function getVal(id) { return ratings[id] || 0; }
+
+function updateProgress() {
+  let filled = 0;
+  const evaluator = document.getElementById('evaluatorGroup').value;
+  const target = document.getElementById('targetGroup').value;
+  if (evaluator) filled++;
+  if (target) filled++;
+  RATING_IDS.forEach(id => { if (ratings[id]) filled++; });
+  ['qBest','qImprove','qLearn'].forEach(id => {
+    if (document.getElementById(id).value.trim()) filled++;
+  });
+  const pct = Math.round((filled / 11) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = filled + ' / 11 项已填';
+}
+
+['evaluatorGroup','targetGroup'].forEach(id => {
+  document.getElementById(id).addEventListener('change', function() {
+    document.getElementById('warningBanner').style.display = 'none';
+    updateProgress();
+  });
+});
+
+['qBest','qImprove','qLearn'].forEach(id => {
+  document.getElementById(id).addEventListener('input', updateProgress);
+});
+
+function loadExisting() {
+  try {
+    return JSON.parse(localStorage.getItem('peer_evaluations') || '[]');
+  } catch(e) { return []; }
+}
+
+function saveEvaluation(data) {
+  const list = loadExisting();
+  list.push(data);
+  localStorage.setItem('peer_evaluations', JSON.stringify(list));
+}
+
+function hasEvaluated(evaluator, target) {
+  return loadExisting().some(e => e.evaluator === evaluator && e.target === target);
+}
+
+function submitForm() {
+  const evaluator = document.getElementById('evaluatorGroup').value;
+  const target = document.getElementById('targetGroup').value;
+  const r = [1,2,3,4,5,6].map(i => getVal('r'+i));
+  const best = document.getElementById('qBest').value.trim();
+  const improve = document.getElementById('qImprove').value.trim();
+  const learn = document.getElementById('qLearn').value.trim();
+
+  if (!evaluator) { showError('请选择您所在的小组'); return; }
+  if (!target) { showError('请选择要评价的小组'); return; }
+  if (evaluator === target) { showError('不能评价自己小组'); return; }
+  if (r.some(v => v === 0)) { showError('请完成所有评分项（1-6项）'); return; }
+  if (!best) { showError('请填写第7项「做得最好的方面」'); return; }
+  if (!improve) { showError('请填写第8项「改进建议」'); return; }
+  if (!learn) { showError('请填写第9项「学到了什么」'); return; }
+
+  if (hasEvaluated(evaluator, target)) {
+    document.getElementById('warningBanner').style.display = 'block';
+    document.getElementById('warningBanner').textContent = '⚠️ 您已评价过第' + target + '组，请选择其他小组';
+    return;
+  }
+
+  const data = {
+    evaluator, target,
+    r1: r[0], r2: r[1], r3: r[2], r4: r[3], r5: r[4], r6: r[5],
+    total: r.reduce((a,b)=>a+b,0),
+    best, improve, learn,
+    timestamp: new Date().toISOString()
+  };
+
+  saveEvaluation(data);
+
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('successMsg').style.display = 'block';
+
+  // 可选: 生成结果表格（管理员入口）
+  updateAdminPanel();
+}
+
+function showError(msg) {
+  const el = document.getElementById('errorMsg');
+  el.textContent = msg;
+  el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 3000);
+}
+
+function resetForm() {
+  document.getElementById('evaluatorGroup').value = '';
+  document.getElementById('targetGroup').value = '';
+  document.getElementById('qBest').value = '';
+  document.getElementById('qImprove').value = '';
+  document.getElementById('qLearn').value = '';
+  RATING_IDS.forEach(id => {
+    document.getElementById(id).querySelectorAll('.rating-btn').forEach(b => b.classList.remove('selected'));
+    ratings[id] = 0;
+  });
+  document.getElementById('warningBanner').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('successMsg').style.display = 'none';
+  document.getElementById('errorMsg').style.display = 'none';
+  updateProgress();
+}
+
+// ====== 管理员面板（导出数据）======
+
+function updateAdminPanel() {
+  const panel = document.getElementById('adminPanel');
+  if (panel) renderAdmin();
+}
+
+function renderAdmin() {
+  const container = document.getElementById('adminData');
+  const list = loadExisting();
+  if (list.length === 0) {
+    container.innerHTML = '<p style="color:#888;text-align:center;padding:20px;">暂无评价数据</p>';
+    return;
+  }
+
+  // 按被评小组汇总
+  const groups = {};
+  for (let i = 1; i <= 9; i++) groups[i] = [];
+  list.forEach(e => {
+    if (groups[e.target]) groups[e.target].push(e);
+  });
+
+  let html = '<div style="overflow-x:auto;">';
+  html += '<table style="width:100%;border-collapse:collapse;font-size:13px;">';
+  html += '<tr style="background:#f0f4ff;">';
+  html += '<th style="padding:8px;border:1px solid #ddd;text-align:center;">小组</th>';
+  html += '<th style="padding:8px;border:1px solid #ddd;text-align:center;">评价数</th>';
+  html += '<th style="padding:8px;border:1px solid #ddd;text-align:center;">平均分</th>';
+  html += '<th style="padding:8px;border:1px solid #ddd;text-align:center;">各维度均分</th></tr>';
+
+  const dimNames = ['内容价值','论证理据','汇报清晰','协作体现','互动质量','整体印象'];
+
+  for (let i = 1; i <= 9; i++) {
+    const evals = groups[i] || [];
+    if (evals.length === 0) {
+      html += '<tr><td style="padding:8px;border:1px solid #ddd;text-align:center;">第'+i+'组</td><td colspan="4" style="padding:8px;border:1px solid #ddd;text-align:center;color:#aaa;">暂无评价</td></tr>';
+      continue;
+    }
+    // 去掉最高最低分
+    const scores = evals.map(e => e.total).sort((a,b)=>a-b);
+    let validScores = scores;
+    if (scores.length >= 3) validScores = scores.slice(1, -1);
+    const avg = (validScores.reduce((a,b)=>a+b,0) / validScores.length).toFixed(1);
+
+    // 各维度均分
+    const dimAvgs = [1,2,3,4,5,6].map(d => {
+      const vals = evals.map(e => e['r'+d]).sort((a,b)=>a-b);
+      let v = vals;
+      if (vals.length >= 3) v = vals.slice(1, -1);
+      return (v.reduce((a,b)=>a+b,0) / v.length).toFixed(1);
+    });
+
+    html += '<tr><td style="padding:8px;border:1px solid #ddd;text-align:center;font-weight:600;">第'+i+'组</td>';
+    html += '<td style="padding:8px;border:1px solid #ddd;text-align:center;">'+evals.length+'份</td>';
+    html += '<td style="padding:8px;border:1px solid #ddd;text-align:center;font-weight:600;color:#4a6cf7;">'+avg+' / 30</td>';
+    html += '<td style="padding:8px;border:1px solid #ddd;font-size:12px;">'+dimAvgs.map((v,i)=>dimNames[i]+' '+v).join(' | ')+'</td></tr>';
+  }
+  html += '</table></div>';
+  container.innerHTML = html;
+}
+
+function exportCSV() {
+  const list = loadExisting();
+  if (list.length === 0) { alert('暂无数据可导出'); return; }
+  const headers = ['评价人小组','被评小组','内容价值','论证理据','汇报清晰度','协作体现','互动质量','整体印象','总分','做得最好','改进建议','学到什么','时间'];
+  const rows = list.map(e => [
+    e.evaluator, e.target, e.r1, e.r2, e.r3, e.r4, e.r5, e.r6, e.total,
+    '"'+(e.best||'')+'"', '"'+(e.improve||'')+'"', '"'+(e.learn||'')+'"', e.timestamp
+  ]);
+  const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+  const blob = new Blob(['﻿' + csv], {type:'text/csv;charset=utf-8;'});
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = '小组互评数据_'+new Date().toISOString().slice(0,10)+'.csv';
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
+
+function clearAllData() {
+  if (confirm('确定要清除所有评价数据吗？此操作不可撤销。')) {
+    if (confirm('再次确认：将删除全部 ' + loadExisting().length + ' 条评价记录')) {
+      localStorage.removeItem('peer_evaluations');
+      renderAdmin();
+    }
+  }
+}
+
+// 管理员入口（长按标题5次）
+let titleClicks = 0;
+document.querySelector('.header h1').addEventListener('click', function() {
+  titleClicks++;
+  if (titleClicks >= 5) {
+    titleClicks = 0;
+    toggleAdmin();
+  }
+  setTimeout(() => titleClicks = 0, 2000);
+});
+
+function toggleAdmin() {
+  let panel = document.getElementById('adminPanel');
+  if (panel) {
+    panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    if (panel.style.display === 'block') renderAdmin();
+    return;
+  }
+
+  panel = document.createElement('div');
+  panel.id = 'adminPanel';
+  panel.innerHTML = `
+    <div class="card" style="border:2px solid #4a6cf7;">
+      <div class="card-title" style="color:#4a6cf7;">⚙️ 管理员面板</div>
+      <p style="font-size:13px;color:#888;margin-bottom:12px;">共 <span id="dataCount">0</span> 条评价记录</p>
+      <div id="adminData"></div>
+      <div style="display:flex;gap:8px;margin-top:12px;">
+        <button onclick="exportCSV()" style="flex:1;padding:10px;border:none;border-radius:8px;background:#4a6cf7;color:#fff;font-size:14px;cursor:pointer;">导出 CSV</button>
+        <button onclick="clearAllData()" style="padding:10px 16px;border:1px solid #ef4444;border-radius:8px;background:#fff;color:#ef4444;font-size:14px;cursor:pointer;">清除数据</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('app').appendChild(panel);
+  renderAdmin();
+}
+
+// 初始化
+updateProgress();
+</script>
+</body>
+</html>
