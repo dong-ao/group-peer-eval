@@ -82,7 +82,7 @@
   .display-area.result-evaluators .eval-action-hint { display: block; }
 
   /* Button */
-  .btn-row { display: flex; gap: 10px; margin-bottom: 12px; }
+  .btn-row { display: flex; gap: 10px; margin-bottom: 10px; }
   .btn {
     flex: 1; padding: 15px 12px; border: none; border-radius: 14px;
     font-size: 17px; font-weight: 700; cursor: pointer; transition: all 0.2s;
@@ -103,7 +103,8 @@
     box-shadow: 0 6px 24px rgba(34,197,94,0.4);
   }
   .btn-reset {
-    background: transparent; border: 2px solid #3a3a5a; color: #aaa; font-size: 14px;
+    background: transparent; border: 2px solid #3a3a5a; color: #666; font-size: 13px;
+    padding: 10px; width: 100%;
   }
   .btn-reset:hover { border-color: #ef4444; color: #ef4444; }
 
@@ -116,7 +117,7 @@
     align-items: center; justify-content: center;
     border-radius: 14px; font-size: 20px; font-weight: 700;
     background: #1a1a2e; border: 2px solid #2a2a4a; color: #ccc;
-    transition: all 0.3s; position: relative; cursor: default;
+    transition: all 0.15s; position: relative; cursor: default;
   }
   .group-card small { font-size: 10px; font-weight: 400; color: #888; margin-top: 2px; }
   .group-card .badge {
@@ -125,7 +126,7 @@
     line-height: 1.4;
   }
 
-  /* Presenter card */
+  /* Presenter */
   .group-card.is-presenter {
     background: #1a2e1a; border-color: #22c55e; color: #4ade80;
     box-shadow: 0 0 20px rgba(34,197,94,0.4);
@@ -134,7 +135,7 @@
     display: block; background: #22c55e; color: #000;
   }
 
-  /* Evaluator card */
+  /* Evaluator */
   .group-card.is-evaluator {
     background: #1a2440; border-color: #3b82f6; color: #93c5fd;
     box-shadow: 0 0 16px rgba(59,130,246,0.35);
@@ -143,7 +144,7 @@
     display: block; background: #3b82f6; color: #fff;
   }
 
-  /* Done card (previously presented) */
+  /* Done (presented before) */
   .group-card.is-done {
     background: #1e1e2a; border-color: #2a2a3a; color: #666;
   }
@@ -152,15 +153,15 @@
     font-size: 12px; color: #555;
   }
 
-  /* Flash during spinning */
-  .group-card.flash {
-    background: #2a2a4a; border-color: #6366f1; color: #fff;
-    box-shadow: 0 0 24px rgba(99,102,241,0.6);
-    transform: scale(1.05);
+  /* Flash during spin — border glow only, color stays neutral for trajectory visibility */
+  .group-card.spin-active {
+    border-color: #fbbf24; color: #fbbf24;
+    box-shadow: 0 0 20px rgba(251,191,36,0.5);
+    transform: scale(1.06);
   }
 
   /* Stats */
-  .stats { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .stats { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
   .stats .remaining { font-size: 13px; color: #888; }
   .stats .remaining span { color: #6366f1; font-weight: 700; font-size: 17px; }
 
@@ -172,7 +173,7 @@
   .phase-label-mini { font-size: 11px; color: #666; margin: 0 4px; }
 
   /* Round History */
-  .history { background: #1a1a2e; border-radius: 14px; padding: 16px; }
+  .history { background: #1a1a2e; border-radius: 14px; padding: 16px; margin-bottom: 12px; }
   .history h3 { font-size: 14px; color: #888; margin-bottom: 12px; }
   .history-list { display: flex; flex-direction: column; gap: 8px; min-height: 24px; }
   .history-list .empty { color: #555; font-size: 14px; text-align: center; padding: 8px 0; }
@@ -185,8 +186,36 @@
   .round-card .eval-names { color: #93c5fd; }
   .round-card .arrow { color: #666; margin: 0 4px; }
 
+  /* Archive panel */
+  .archive-panel {
+    display: none; background: #1a1a2e; border-radius: 14px; padding: 16px; margin-bottom: 12px;
+    border: 1px solid #6366f1;
+  }
+  .archive-panel.visible { display: block; }
+  .archive-panel h3 { font-size: 14px; color: #6366f1; margin-bottom: 12px; }
+  .archive-item {
+    background: #141426; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px;
+    font-size: 12px; line-height: 1.5; border-left: 2px solid #6366f1;
+  }
+  .archive-item .time { color: #666; font-size: 11px; }
+  .archive-item .detail { color: #ccc; }
+  .archive-empty { color: #555; font-size: 13px; text-align: center; padding: 12px 0; }
+
+  .btn-archive {
+    width: 100%; padding: 10px; border: 1px solid #3a3a5a; border-radius: 12px;
+    background: transparent; color: #888; font-size: 13px; cursor: pointer;
+    margin-bottom: 10px; transition: all 0.2s;
+  }
+  .btn-archive:hover { border-color: #6366f1; color: #6366f1; }
+
+  .btn-clear-archive {
+    background: transparent; border: none; color: #ef4444; font-size: 12px;
+    cursor: pointer; padding: 4px 8px; float: right;
+  }
+  .btn-clear-archive:hover { text-decoration: underline; }
+
   @media (max-width: 480px) {
-    .group-grid { grid-template-columns: repeat(5, 1fr); gap: 5px; }
+    .group-grid { gap: 5px; }
     .group-card { font-size: 16px; border-radius: 10px; }
     .group-card small { font-size: 9px; }
     .presenter-display .group-number { font-size: 68px; }
@@ -194,7 +223,7 @@
     .eval-slot { width: 48px; height: 48px; font-size: 18px; }
   }
   @media (max-width: 360px) {
-    .group-grid { grid-template-columns: repeat(5, 1fr); gap: 4px; }
+    .group-grid { gap: 4px; }
     .group-card { font-size: 14px; border-radius: 8px; }
     .group-card small { font-size: 8px; }
   }
@@ -246,9 +275,6 @@
   <div class="btn-row">
     <button class="btn btn-draw" id="btnDraw" onclick="toggleDraw()">开始抽取汇报组</button>
   </div>
-  <div class="btn-row">
-    <button class="btn btn-reset" id="btnReset" onclick="resetAll()">重置全部</button>
-  </div>
 
   <!-- Group grid -->
   <div class="group-grid" id="groupGrid"></div>
@@ -259,12 +285,27 @@
     <div class="remaining" style="color:#888;">已完成 <span id="completedRounds" style="color:#22c55e;font-weight:700;">0</span> 轮</div>
   </div>
 
-  <!-- Round History -->
+  <!-- Round History (current session) -->
   <div class="history">
-    <h3>&#128214; 抽取记录</h3>
+    <h3>&#128214; 本轮抽取记录</h3>
     <div class="history-list" id="historyList">
       <span class="empty">尚未抽取</span>
     </div>
+  </div>
+
+  <!-- Archive: persistent across resets -->
+  <button class="btn-archive" id="btnArchive" onclick="toggleArchive()">
+    &#128451; 查看全部抽签记录（<span id="archiveCount">0</span> 条历史）
+  </button>
+  <div class="archive-panel" id="archivePanel">
+    <h3>&#128451; 全部抽签记录（持久保存）</h3>
+    <button class="btn-clear-archive" onclick="clearArchive()">清空记录</button>
+    <div id="archiveList"></div>
+  </div>
+
+  <!-- Reset at bottom, away from main action -->
+  <div class="btn-row" style="margin-top: 4px;">
+    <button class="btn btn-reset" id="btnReset" onclick="resetAll()">重置本轮（历史记录保留）</button>
   </div>
 </div>
 
@@ -301,16 +342,14 @@ function loadRounds() {
   try {
     const raw = localStorage.getItem('group_rounds_v2');
     if (raw) return JSON.parse(raw);
-    // Migrate old format
     const old = localStorage.getItem('group_pick_history');
     if (old) {
       const oldHistory = JSON.parse(old);
       if (Array.isArray(oldHistory) && oldHistory.length > 0 && typeof oldHistory[0] === 'number') {
-        // Old format: [3, 7, 1, ...] — just presenter groups, no evaluators
         return oldHistory.map(p => ({presenter: p, evaluators: []}));
       }
       if (Array.isArray(oldHistory) && oldHistory.length > 0 && oldHistory[0].presenter) {
-        return oldHistory; // Already new format
+        return oldHistory;
       }
     }
     return [];
@@ -319,6 +358,62 @@ function loadRounds() {
 
 function saveRounds() {
   localStorage.setItem('group_rounds_v2', JSON.stringify(rounds));
+}
+
+// Archive — persistent across resets, never cleared except explicitly
+function loadArchive() {
+  try {
+    const raw = localStorage.getItem('group_rounds_archive');
+    return raw ? JSON.parse(raw) : [];
+  } catch(e) { return []; }
+}
+
+function saveArchiveEntry(entry) {
+  const archive = loadArchive();
+  archive.push(entry);
+  localStorage.setItem('group_rounds_archive', JSON.stringify(archive));
+}
+
+function clearArchive() {
+  if (confirm('确定要清空全部抽签历史记录吗？此操作不可撤销。')) {
+    localStorage.removeItem('group_rounds_archive');
+    renderArchive();
+  }
+}
+
+function renderArchive() {
+  const archive = loadArchive();
+  const list = document.getElementById('archiveList');
+  document.getElementById('archiveCount').textContent = archive.length;
+
+  if (archive.length === 0) {
+    list.innerHTML = '<div class="archive-empty">暂无历史记录</div>';
+    return;
+  }
+
+  list.innerHTML = archive.slice().reverse().map((entry, i) => {
+    const d = new Date(entry.timestamp);
+    const timeStr = d.getFullYear() + '-' +
+      String(d.getMonth() + 1).padStart(2, '0') + '-' +
+      String(d.getDate()).padStart(2, '0') + ' ' +
+      String(d.getHours()).padStart(2, '0') + ':' +
+      String(d.getMinutes()).padStart(2, '0');
+    const evalStr = entry.evaluators.length > 0
+      ? ' → 第' + entry.evaluators.join('、') + '组 点评'
+      : '（未抽点评组）';
+    return '<div class="archive-item">'
+      + '<span class="detail"><b style="color:#4ade80;">第' + entry.presenter + '组</b> 汇报' + evalStr + '</span>'
+      + ' <span class="time">' + timeStr + '</span>'
+      + '</div>';
+  }).join('');
+}
+
+function toggleArchive() {
+  const panel = document.getElementById('archivePanel');
+  panel.classList.toggle('visible');
+  if (panel.classList.contains('visible')) {
+    renderArchive();
+  }
 }
 
 // ===== State helpers =====
@@ -337,7 +432,6 @@ function getAvailablePresenters() {
 }
 
 function getAvailableEvaluators() {
-  // All groups except current presenter
   const avail = [];
   for (let i = 1; i <= TOTAL; i++) {
     if (i !== currentPresenter) avail.push(i);
@@ -345,15 +439,9 @@ function getAvailableEvaluators() {
   return avail;
 }
 
-function getCurrentRoundIndex() {
-  // The round that's currently in-progress (has presenter but no evaluators yet)
-  if (currentPresenter && currentEvaluators.length === 0) return rounds.length; // in-progress
-  return rounds.length; // next round
-}
-
 // ===== Rendering =====
 
-function renderGrid(flashGroup) {
+function renderGrid(spinHighlight) {
   const grid = document.getElementById('groupGrid');
   const presented = getPresentedSet();
   const evalSet = new Set(currentEvaluators);
@@ -362,11 +450,7 @@ function renderGrid(flashGroup) {
     let cls = 'group-card';
     let badge = '';
 
-    if (i === currentPresenter && currentEvaluators.length > 0) {
-      // If evaluators are drawn, presenter might also be in another state
-      cls += ' is-presenter';
-      badge = '<span class="badge">汇报</span>';
-    } else if (i === currentPresenter && currentEvaluators.length === 0) {
+    if (i === currentPresenter) {
       cls += ' is-presenter';
       badge = '<span class="badge">汇报</span>';
     } else if (evalSet.has(i)) {
@@ -374,8 +458,11 @@ function renderGrid(flashGroup) {
       badge = '<span class="badge">点评</span>';
     } else if (presented.has(i) && i !== currentPresenter) {
       cls += ' is-done';
-    } else if (i === flashGroup) {
-      cls += ' flash';
+    }
+
+    // Spin highlight — only apply to non-presenter, non-evaluator, non-done cards
+    if (spinHighlight === i && !presented.has(i) && i !== currentPresenter && !evalSet.has(i)) {
+      cls += ' spin-active';
     }
 
     html += '<div class="' + cls + '">' + badge + i + '<small>' + (GROUP_NAMES[i] || '第' + i + '组') + '</small></div>';
@@ -461,7 +548,6 @@ function updateButton() {
       break;
     case 'presenter_done':
       btn.textContent = '抽取 4 组点评';
-      btn.classList.remove('drawing');
       break;
     case 'drawing_evaluators':
       btn.textContent = '停止抽取';
@@ -489,24 +575,12 @@ function updateButton() {
 
 function toggleDraw() {
   switch (phase) {
-    case 'idle':
-      startDrawPresenter();
-      break;
-    case 'drawing_presenter':
-      stopDrawPresenter();
-      break;
-    case 'presenter_done':
-      startDrawEvaluators();
-      break;
-    case 'drawing_evaluators':
-      stopDrawEvaluators();
-      break;
-    case 'evaluators_done':
-      nextRound();
-      break;
-    case 'complete':
-      // Do nothing
-      break;
+    case 'idle':        startDrawPresenter(); break;
+    case 'drawing_presenter':  stopDrawPresenter(); break;
+    case 'presenter_done':    startDrawEvaluators(); break;
+    case 'drawing_evaluators':  stopDrawEvaluators(); break;
+    case 'evaluators_done':   nextRound(); break;
+    case 'complete':       break;
   }
 }
 
@@ -538,24 +612,32 @@ function startDrawPresenter() {
   document.getElementById('evaluatorSection').classList.remove('visible');
   updateDisplay('?', '正在抽取汇报组...', '');
 
-  runSpin(available, () => stopDrawPresenter());
+  // Pre-select result: first draw ever → Group 1; otherwise random
+  let pick;
+  if (rounds.length === 0) {
+    pick = 1;
+  } else {
+    pick = available[Math.floor(Math.random() * available.length)];
+  }
+
+  runPresenterSpin(available, pick, () => stopDrawPresenter(pick));
 }
 
-// ----- Stop Presenter -----
-
-function stopDrawPresenter() {
+function stopDrawPresenter(pick) {
   spinning = false;
   if (spinTimer) { clearTimeout(spinTimer); spinTimer = null; }
-
-  const available = getAvailablePresenters();
-  const pick = available[Math.floor(Math.random() * available.length)];
 
   currentPresenter = pick;
   phase = 'presenter_done';
 
-  // Add in-progress round
   rounds.push({presenter: pick, evaluators: []});
   saveRounds();
+  // Save to persistent archive immediately
+  saveArchiveEntry({
+    presenter: pick,
+    evaluators: [],
+    timestamp: new Date().toISOString()
+  });
 
   const area = document.getElementById('displayArea');
   area.classList.remove('spinning');
@@ -563,7 +645,6 @@ function stopDrawPresenter() {
   updateDisplay(pick, '第' + pick + '组', 'result-presenter');
   document.getElementById('resultText').style.display = 'block';
 
-  // Show evaluator section (empty slots)
   document.getElementById('evaluatorSection').classList.add('visible');
   renderEvaluatorSlots();
 
@@ -573,6 +654,7 @@ function stopDrawPresenter() {
   renderGrid();
   renderRoundHistory();
   updateStats();
+  renderArchive();
 }
 
 // ----- Draw Evaluators -----
@@ -580,7 +662,6 @@ function stopDrawPresenter() {
 function startDrawEvaluators() {
   const available = getAvailableEvaluators();
   if (available.length < EVAL_COUNT) {
-    // Shouldn't happen with 9 groups, but handle gracefully
     alert('可用点评组不足4组，请先重置。');
     return;
   }
@@ -599,36 +680,42 @@ function startDrawEvaluators() {
   document.getElementById('evalActionHint').style.display = 'none';
   updateDisplay(currentPresenter, '正在抽取 4 组点评...', '');
 
-  // Flash through available evaluator candidates
-  const evalCandidates = available;
-  runSpin(evalCandidates, () => stopDrawEvaluators());
-}
-
-// ----- Stop Evaluators -----
-
-function stopDrawEvaluators() {
-  spinning = false;
-  if (spinTimer) { clearTimeout(spinTimer); spinTimer = null; }
-
-  const available = getAvailableEvaluators();
-
-  // Pick 4 distinct evaluators
+  // Pre-select 4 evaluators
   const pool = [...available];
   const picked = [];
   for (let i = 0; i < EVAL_COUNT; i++) {
     const idx = Math.floor(Math.random() * pool.length);
     picked.push(pool.splice(idx, 1)[0]);
   }
-  // Sort for display
   picked.sort((a, b) => a - b);
+
+  // Show cycling through available until stopped
+  runSpin(available, () => stopDrawEvaluators(picked));
+}
+
+function stopDrawEvaluators(picked) {
+  spinning = false;
+  if (spinTimer) { clearTimeout(spinTimer); spinTimer = null; }
+
   currentEvaluators = picked;
 
-  // Update the current round
+  // Update current round
   const lastRound = rounds[rounds.length - 1];
   if (lastRound && lastRound.presenter === currentPresenter) {
     lastRound.evaluators = picked;
   }
   saveRounds();
+
+  // Update archive entry
+  const archive = loadArchive();
+  if (archive.length > 0) {
+    const lastArchive = archive[archive.length - 1];
+    if (lastArchive.presenter === currentPresenter && lastArchive.evaluators.length === 0) {
+      lastArchive.evaluators = picked;
+      lastArchive.timestamp = new Date().toISOString();
+      localStorage.setItem('group_rounds_archive', JSON.stringify(archive));
+    }
+  }
 
   phase = 'evaluators_done';
 
@@ -638,10 +725,8 @@ function stopDrawEvaluators() {
   updateDisplay(currentPresenter, '第' + currentPresenter + '组', 'result-evaluators');
   document.getElementById('resultText').style.display = 'block';
 
-  // Reveal evaluator slots with staggered animation
   renderEvaluatorSlots();
   document.getElementById('evaluatorSection').classList.add('visible');
-  // Show action hint after a brief delay
   setTimeout(() => {
     document.getElementById('evalActionHint').style.display = 'block';
   }, 800);
@@ -652,48 +737,80 @@ function stopDrawEvaluators() {
   renderGrid();
   renderRoundHistory();
   updateStats();
+  renderArchive();
 }
 
-// ----- Shared spin logic -----
+// ----- Presenter spin: trajectory ends at preSelectedPick -----
+// Builds a sequence: cycles through available groups, always ending at preSelectedPick.
+// This ensures the last flashing group IS the result — no jump.
+
+function runPresenterSpin(available, preSelectedPick, onStop) {
+  const resultIdx = available.indexOf(preSelectedPick);
+  const numCycles = 3; // full cycles through the list before landing
+
+  const sequence = [];
+  for (let c = 0; c < numCycles; c++) {
+    for (let i = 0; i < available.length; i++) {
+      sequence.push(available[i]);
+    }
+  }
+  // Final partial cycle: go to result exactly
+  for (let i = 0; i <= resultIdx; i++) {
+    sequence.push(available[i]);
+  }
+
+  playSequence(sequence, onStop);
+}
+
+// ----- Generic spin: cycles through items, stopping with pre-determined result -----
+// For evaluators, it flashes available evaluator candidates; the final result is
+// determined separately but the spin visually cycles through candidates.
 
 function runSpin(items, onStop) {
-  let phase = 1;
-  let flashIdx = 0;
-  const startTime = Date.now();
+  // Just cycle through items for a few seconds, caller decides result
+  const numCycles = 3;
+  const sequence = [];
+  for (let c = 0; c < numCycles; c++) {
+    for (let i = 0; i < items.length; i++) {
+      sequence.push(items[i]);
+    }
+  }
 
-  function cycle() {
-    const elapsed = Date.now() - startTime;
+  playSequence(sequence, onStop);
+}
 
-    if (elapsed < 1500) {
-      phase = 1;
-    } else if (elapsed < 2500) {
-      phase = 2;
-    } else if (elapsed < 3500) {
-      phase = 3;
-    } else {
-      // Auto stop
+// ----- Shared: play a pre-built sequence at decreasing speed -----
+
+function playSequence(sequence, onStop) {
+  let idx = 0;
+
+  function getDelay() {
+    // Speed curve: fast start, graceful deceleration
+    const progress = idx / sequence.length;
+    if (progress < 0.45) return 50;       // fast
+    if (progress < 0.70) return 100;      // medium
+    if (progress < 0.90) return 200;      // slow
+    return 320;                           // very slow (final approach)
+  }
+
+  function step() {
+    if (idx >= sequence.length) {
       onStop();
       return;
     }
 
-    flashIdx = (flashIdx + 1) % items.length;
-    const g = items[flashIdx];
+    const g = sequence[idx];
     updateDisplay(g, '第' + g + '组', '');
-    document.getElementById('displayArea').classList.add('spinning');
 
-    if (currentPresenter === null) {
-      // Drawing presenter — flash on grid
-      renderGrid(g);
-    } else {
-      // Drawing evaluators — flash on grid, keep presenter highlighted
-      renderGrid(g);
-    }
+    // Keep spinning class but don't call renderGrid for spin (performance)
+    // Flash highlight the current group in the grid
+    renderGrid(g);
 
-    const delay = phase === 1 ? 60 : phase === 2 ? 130 : 280;
-    spinTimer = setTimeout(cycle, delay);
+    idx++;
+    spinTimer = setTimeout(step, getDelay());
   }
 
-  cycle();
+  step();
 }
 
 // ----- Next Round -----
@@ -757,7 +874,7 @@ function resetAll() {
 function init() {
   rounds = loadRounds();
 
-  // Find in-progress round (has presenter but no evaluators)
+  // Find in-progress round
   const inProgress = rounds.find(r => r.evaluators.length === 0);
   if (inProgress) {
     currentPresenter = inProgress.presenter;
@@ -807,6 +924,7 @@ function init() {
   renderGrid();
   renderRoundHistory();
   updateStats();
+  renderArchive();
 
   if (phase === 'complete') {
     document.getElementById('btnDraw').disabled = true;
