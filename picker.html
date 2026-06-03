@@ -461,7 +461,7 @@ function renderGrid(spinHighlight) {
     }
 
     // Spin highlight — only apply to non-presenter, non-evaluator, non-done cards
-    if (spinHighlight === i && !presented.has(i) && i !== currentPresenter && !evalSet.has(i)) {
+    if (spinHighlight === i && i !== currentPresenter && !evalSet.has(i)) {
       cls += ' spin-active';
     }
 
