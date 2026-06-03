@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>抽组演进 — 课堂随机抽组</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: #0f0f1a; color: #e0e0e0; min-height: 100vh; display: flex;
+    justify-content: center; align-items: center; padding: 16px;
+  }
+  .container { max-width: 500px; width: 100%; }
+
+  /* Header */
+  .header { text-align: center; margin-bottom: 20px; }
+  .header h1 { font-size: 26px; color: #fff; }
+  .header p { font-size: 14px; color: #888; margin-top: 6px; }
+
+  /* Main display */
+  .display-area {
+    background: #1a1a2e; border-radius: 20px; padding: 24px 20px;
+    text-align: center; margin-bottom: 16px; position: relative; overflow: hidden;
+    border: 2px solid #2a2a4a; transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  .display-area.spinning { border-color: #6366f1; box-shadow: 0 0 40px rgba(99,102,241,0.3); }
+  .display-area.result-presenter { border-color: #22c55e; box-shadow: 0 0 40px rgba(34,197,94,0.3); }
+  .display-area.result-evaluators { border-color: #3b82f6; box-shadow: 0 0 40px rgba(59,130,246,0.3); }
+
+  .phase-label {
+    font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px;
+  }
+
+  /* Presenter display */
+  .presenter-display { margin-bottom: 8px; }
+  .presenter-display .group-number {
+    font-size: 88px; font-weight: 800; color: #6366f1; line-height: 1;
+    transition: color 0.3s, transform 0.1s;
+  }
+  .display-area.result-presenter .presenter-display .group-number { color: #22c55e; }
+  .presenter-label { font-size: 15px; color: #aaa; margin-top: 4px; }
+
+  /* Evaluator display */
+  .evaluator-section {
+    display: none; margin-top: 16px; padding-top: 16px;
+    border-top: 1px solid #2a2a4a;
+  }
+  .evaluator-section.visible { display: block; }
+  .evaluator-section .section-title {
+    font-size: 13px; color: #888; margin-bottom: 10px;
+  }
+  .evaluator-slots {
+    display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
+  }
+  .eval-slot {
+    width: 56px; height: 56px; border-radius: 14px;
+    background: #1e1e36; border: 2px dashed #3a3a5a;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; font-weight: 700; color: #555;
+    transition: all 0.4s;
+  }
+  .eval-slot.filled {
+    background: #1a2440; border-color: #3b82f6; border-style: solid;
+    color: #60a5fa; animation: evaluatorReveal 0.5s ease-out;
+  }
+  @keyframes evaluatorReveal {
+    0% { transform: scale(0.5); opacity: 0; }
+    50% { transform: scale(1.15); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .result-text {
+    display: none; font-size: 15px; color: #22c55e; margin-top: 10px; font-weight: 600;
+  }
+  .display-area.result-presenter .result-text { display: block; }
+
+  /* Evaluator action hint */
+  .eval-action-hint {
+    display: none; margin-top: 12px; font-size: 13px; color: #fbbf24; line-height: 1.6;
+  }
+  .display-area.result-evaluators .eval-action-hint { display: block; }
+
+  /* Button */
+  .btn-row { display: flex; gap: 10px; margin-bottom: 12px; }
+  .btn {
+    flex: 1; padding: 15px 12px; border: none; border-radius: 14px;
+    font-size: 17px; font-weight: 700; cursor: pointer; transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .btn:active { transform: scale(0.96); }
+  .btn-draw {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: #fff; box-shadow: 0 6px 24px rgba(99,102,241,0.4);
+  }
+  .btn-draw:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+  .btn-draw.drawing {
+    background: linear-gradient(135deg, #ef4444, #f97316);
+    box-shadow: 0 6px 24px rgba(239,68,68,0.4);
+  }
+  .btn-draw.next-round {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    box-shadow: 0 6px 24px rgba(34,197,94,0.4);
+  }
+  .btn-reset {
+    background: transparent; border: 2px solid #3a3a5a; color: #aaa; font-size: 14px;
+  }
+  .btn-reset:hover { border-color: #ef4444; color: #ef4444; }
+
+  /* Group grid */
+  .group-grid {
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 16px;
+  }
+  .group-card {
+    aspect-ratio: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    border-radius: 14px; font-size: 20px; font-weight: 700;
+    background: #1a1a2e; border: 2px solid #2a2a4a; color: #ccc;
+    transition: all 0.3s; position: relative; cursor: default;
+  }
+  .group-card small { font-size: 10px; font-weight: 400; color: #888; margin-top: 2px; }
+  .group-card .badge {
+    display: none; position: absolute; top: 4px; right: 6px;
+    font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 10px;
+    line-height: 1.4;
+  }
+
+  /* Presenter card */
+  .group-card.is-presenter {
+    background: #1a2e1a; border-color: #22c55e; color: #4ade80;
+    box-shadow: 0 0 20px rgba(34,197,94,0.4);
+  }
+  .group-card.is-presenter .badge {
+    display: block; background: #22c55e; color: #000;
+  }
+
+  /* Evaluator card */
+  .group-card.is-evaluator {
+    background: #1a2440; border-color: #3b82f6; color: #93c5fd;
+    box-shadow: 0 0 16px rgba(59,130,246,0.35);
+  }
+  .group-card.is-evaluator .badge {
+    display: block; background: #3b82f6; color: #fff;
+  }
+
+  /* Done card (previously presented) */
+  .group-card.is-done {
+    background: #1e1e2a; border-color: #2a2a3a; color: #666;
+  }
+  .group-card.is-done::after {
+    content: '✓'; position: absolute; top: 4px; right: 8px;
+    font-size: 12px; color: #555;
+  }
+
+  /* Flash during spinning */
+  .group-card.flash {
+    background: #2a2a4a; border-color: #6366f1; color: #fff;
+    box-shadow: 0 0 24px rgba(99,102,241,0.6);
+    transform: scale(1.05);
+  }
+
+  /* Stats */
+  .stats { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .stats .remaining { font-size: 13px; color: #888; }
+  .stats .remaining span { color: #6366f1; font-weight: 700; font-size: 17px; }
+
+  /* Phase indicator dots */
+  .phase-indicator { display: flex; gap: 6px; align-items: center; justify-content: center; margin-bottom: 16px; }
+  .phase-dot { width: 8px; height: 8px; border-radius: 50%; background: #2a2a4a; transition: all 0.3s; }
+  .phase-dot.active { background: #6366f1; box-shadow: 0 0 8px rgba(99,102,241,0.6); }
+  .phase-dot.done { background: #22c55e; }
+  .phase-label-mini { font-size: 11px; color: #666; margin: 0 4px; }
+
+  /* Round History */
+  .history { background: #1a1a2e; border-radius: 14px; padding: 16px; }
+  .history h3 { font-size: 14px; color: #888; margin-bottom: 12px; }
+  .history-list { display: flex; flex-direction: column; gap: 8px; min-height: 24px; }
+  .history-list .empty { color: #555; font-size: 14px; text-align: center; padding: 8px 0; }
+  .round-card {
+    background: #141426; border-radius: 10px; padding: 10px 14px;
+    border-left: 3px solid #22c55e; font-size: 13px; line-height: 1.6;
+  }
+  .round-card .round-num { font-weight: 700; color: #22c55e; }
+  .round-card .presenter-name { color: #4ade80; font-weight: 600; }
+  .round-card .eval-names { color: #93c5fd; }
+  .round-card .arrow { color: #666; margin: 0 4px; }
+
+  @media (max-width: 480px) {
+    .group-grid { grid-template-columns: repeat(5, 1fr); gap: 5px; }
+    .group-card { font-size: 16px; border-radius: 10px; }
+    .group-card small { font-size: 9px; }
+    .presenter-display .group-number { font-size: 68px; }
+    .btn { font-size: 15px; padding: 12px 8px; }
+    .eval-slot { width: 48px; height: 48px; font-size: 18px; }
+  }
+  @media (max-width: 360px) {
+    .group-grid { grid-template-columns: repeat(5, 1fr); gap: 4px; }
+    .group-card { font-size: 14px; border-radius: 8px; }
+    .group-card small { font-size: 8px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>&#127919; 抽组演进</h1>
+    <p>抽汇报组 → 抽 4 组点评</p>
+  </div>
+
+  <!-- Phase indicator -->
+  <div class="phase-indicator">
+    <div class="phase-dot active" id="phaseDot1"></div>
+    <span class="phase-label-mini">汇报</span>
+    <span style="color:#333;">→</span>
+    <div class="phase-dot" id="phaseDot2"></div>
+    <span class="phase-label-mini">点评</span>
+  </div>
+
+  <!-- Main display -->
+  <div class="display-area" id="displayArea">
+    <!-- Presenter section -->
+    <div class="presenter-display">
+      <div class="phase-label">汇报组</div>
+      <div class="group-number" id="displayPresenter">?</div>
+      <div class="presenter-label" id="displayLabel">准备开始</div>
+    </div>
+    <div class="result-text" id="resultText">&#127942; 请上台汇报！</div>
+
+    <!-- Evaluator section -->
+    <div class="evaluator-section" id="evaluatorSection">
+      <div class="section-title">点评组（抽 4 组）</div>
+      <div class="evaluator-slots" id="evaluatorSlots">
+        <div class="eval-slot">?</div>
+        <div class="eval-slot">?</div>
+        <div class="eval-slot">?</div>
+        <div class="eval-slot">?</div>
+      </div>
+      <div class="eval-action-hint" id="evalActionHint">
+        &#9200; 各组讨论 2~3 分钟，派代表上台点评<br>
+        &#128172; 点评后汇报组可回应，双向交流
+      </div>
+    </div>
+  </div>
+
+  <!-- Buttons -->
+  <div class="btn-row">
+    <button class="btn btn-draw" id="btnDraw" onclick="toggleDraw()">开始抽取汇报组</button>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-reset" id="btnReset" onclick="resetAll()">重置全部</button>
+  </div>
+
+  <!-- Group grid -->
+  <div class="group-grid" id="groupGrid"></div>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="remaining">待汇报 <span id="remainingCount">10</span> 组</div>
+    <div class="remaining" style="color:#888;">已完成 <span id="completedRounds" style="color:#22c55e;font-weight:700;">0</span> 轮</div>
+  </div>
+
+  <!-- Round History -->
+  <div class="history">
+    <h3>&#128214; 抽取记录</h3>
+    <div class="history-list" id="historyList">
+      <span class="empty">尚未抽取</span>
+    </div>
+  </div>
+</div>
+
+<script>
+const TOTAL = 10;
+const EVAL_COUNT = 4;
+
+// 组名概括（3~6字）
+const GROUP_NAMES = {
+  1: 'AI谄媚与推理',
+  2: '隐私信息均衡',
+  3: 'AI共情抑制',
+  4: '人机协同学习',
+  5: 'AI美育干预',
+  6: '病毒传播教育',
+  7: 'AI失真批判',
+  8: 'AI模拟教学',
+  9: 'AI幻觉免疫',
+  10: '绘本戏剧干预'
+};
+
+// rounds: [{presenter: N, evaluators: [a,b,c,d]}, ...]
+let rounds = [];
+let currentPresenter = null;
+let currentEvaluators = [];
+// phase: idle | drawing_presenter | presenter_done | drawing_evaluators | evaluators_done | complete
+let phase = 'idle';
+let spinning = false;
+let spinTimer = null;
+
+// ===== Persistence =====
+
+function loadRounds() {
+  try {
+    const raw = localStorage.getItem('group_rounds_v2');
+    if (raw) return JSON.parse(raw);
+    // Migrate old format
+    const old = localStorage.getItem('group_pick_history');
+    if (old) {
+      const oldHistory = JSON.parse(old);
+      if (Array.isArray(oldHistory) && oldHistory.length > 0 && typeof oldHistory[0] === 'number') {
+        // Old format: [3, 7, 1, ...] — just presenter groups, no evaluators
+        return oldHistory.map(p => ({presenter: p, evaluators: []}));
+      }
+      if (Array.isArray(oldHistory) && oldHistory.length > 0 && oldHistory[0].presenter) {
+        return oldHistory; // Already new format
+      }
+    }
+    return [];
+  } catch(e) { return []; }
+}
+
+function saveRounds() {
+  localStorage.setItem('group_rounds_v2', JSON.stringify(rounds));
+}
+
+// ===== State helpers =====
+
+function getPresentedSet() {
+  return new Set(rounds.map(r => r.presenter));
+}
+
+function getAvailablePresenters() {
+  const done = getPresentedSet();
+  const avail = [];
+  for (let i = 1; i <= TOTAL; i++) {
+    if (!done.has(i)) avail.push(i);
+  }
+  return avail;
+}
+
+function getAvailableEvaluators() {
+  // All groups except current presenter
+  const avail = [];
+  for (let i = 1; i <= TOTAL; i++) {
+    if (i !== currentPresenter) avail.push(i);
+  }
+  return avail;
+}
+
+function getCurrentRoundIndex() {
+  // The round that's currently in-progress (has presenter but no evaluators yet)
+  if (currentPresenter && currentEvaluators.length === 0) return rounds.length; // in-progress
+  return rounds.length; // next round
+}
+
+// ===== Rendering =====
+
+function renderGrid(flashGroup) {
+  const grid = document.getElementById('groupGrid');
+  const presented = getPresentedSet();
+  const evalSet = new Set(currentEvaluators);
+  let html = '';
+  for (let i = 1; i <= TOTAL; i++) {
+    let cls = 'group-card';
+    let badge = '';
+
+    if (i === currentPresenter && currentEvaluators.length > 0) {
+      // If evaluators are drawn, presenter might also be in another state
+      cls += ' is-presenter';
+      badge = '<span class="badge">汇报</span>';
+    } else if (i === currentPresenter && currentEvaluators.length === 0) {
+      cls += ' is-presenter';
+      badge = '<span class="badge">汇报</span>';
+    } else if (evalSet.has(i)) {
+      cls += ' is-evaluator';
+      badge = '<span class="badge">点评</span>';
+    } else if (presented.has(i) && i !== currentPresenter) {
+      cls += ' is-done';
+    } else if (i === flashGroup) {
+      cls += ' flash';
+    }
+
+    html += '<div class="' + cls + '">' + badge + i + '<small>' + (GROUP_NAMES[i] || '第' + i + '组') + '</small></div>';
+  }
+  grid.innerHTML = html;
+}
+
+function renderEvaluatorSlots() {
+  const slots = document.getElementById('evaluatorSlots');
+  let html = '';
+  for (let i = 0; i < EVAL_COUNT; i++) {
+    const val = currentEvaluators[i] || null;
+    const cls = val ? 'eval-slot filled' : 'eval-slot';
+    const text = val ? val : '?';
+    html += '<div class="' + cls + '">' + text + '</div>';
+  }
+  slots.innerHTML = html;
+}
+
+function renderRoundHistory() {
+  const list = document.getElementById('historyList');
+  if (rounds.length === 0) {
+    list.innerHTML = '<span class="empty">尚未抽取</span>';
+    return;
+  }
+  list.innerHTML = rounds.map((r, i) => {
+    const evalStr = r.evaluators.length > 0
+      ? '<span class="eval-names">第' + r.evaluators.join('、') + '组</span>'
+      : '<span style="color:#666;">未抽点评组</span>';
+    return '<div class="round-card">'
+      + '<span class="round-num">第' + (i + 1) + '轮</span> '
+      + '<span class="presenter-name">第' + r.presenter + '组</span> 汇报'
+      + '<span class="arrow">→</span>'
+      + evalStr + ' 点评'
+      + '</div>';
+  }).join('');
+}
+
+function updateStats() {
+  document.getElementById('remainingCount').textContent = TOTAL - getPresentedSet().size;
+  document.getElementById('completedRounds').textContent = rounds.filter(r => r.evaluators.length > 0).length;
+}
+
+function updatePhaseIndicator() {
+  const dot1 = document.getElementById('phaseDot1');
+  const dot2 = document.getElementById('phaseDot2');
+  dot1.classList.remove('active', 'done');
+  dot2.classList.remove('active', 'done');
+
+  if (phase === 'idle' || phase === 'drawing_presenter') {
+    dot1.classList.add('active');
+  } else if (phase === 'presenter_done' || phase === 'drawing_evaluators') {
+    dot1.classList.add('done');
+    dot2.classList.add('active');
+  } else if (phase === 'evaluators_done' || phase === 'complete') {
+    dot1.classList.add('done');
+    dot2.classList.add('done');
+  }
+}
+
+function updateDisplay(presenterNum, label, areaCls) {
+  document.getElementById('displayPresenter').textContent = presenterNum;
+  document.getElementById('displayLabel').textContent = label;
+  const area = document.getElementById('displayArea');
+  area.classList.remove('spinning', 'result-presenter', 'result-evaluators');
+  if (areaCls) area.classList.add(areaCls);
+}
+
+// ===== Button management =====
+
+function updateButton() {
+  const btn = document.getElementById('btnDraw');
+  btn.classList.remove('drawing', 'next-round');
+  btn.disabled = false;
+
+  switch (phase) {
+    case 'idle':
+      btn.textContent = '开始抽取汇报组';
+      break;
+    case 'drawing_presenter':
+      btn.textContent = '停止抽取';
+      btn.classList.add('drawing');
+      break;
+    case 'presenter_done':
+      btn.textContent = '抽取 4 组点评';
+      btn.classList.remove('drawing');
+      break;
+    case 'drawing_evaluators':
+      btn.textContent = '停止抽取';
+      btn.classList.add('drawing');
+      break;
+    case 'evaluators_done': {
+      const avail = getAvailablePresenters();
+      if (avail.length === 0) {
+        btn.textContent = '全部完成！';
+        btn.disabled = true;
+      } else {
+        btn.textContent = '下一轮（抽汇报组）';
+        btn.classList.add('next-round');
+      }
+      break;
+    }
+    case 'complete':
+      btn.textContent = '全部完成！';
+      btn.disabled = true;
+      break;
+  }
+}
+
+// ===== Drawing logic =====
+
+function toggleDraw() {
+  switch (phase) {
+    case 'idle':
+      startDrawPresenter();
+      break;
+    case 'drawing_presenter':
+      stopDrawPresenter();
+      break;
+    case 'presenter_done':
+      startDrawEvaluators();
+      break;
+    case 'drawing_evaluators':
+      stopDrawEvaluators();
+      break;
+    case 'evaluators_done':
+      nextRound();
+      break;
+    case 'complete':
+      // Do nothing
+      break;
+  }
+}
+
+// ----- Draw Presenter -----
+
+function startDrawPresenter() {
+  const available = getAvailablePresenters();
+  if (available.length === 0) {
+    phase = 'complete';
+    updateDisplay('!', '所有小组已汇报完毕', '');
+    updateButton();
+    updatePhaseIndicator();
+    return;
+  }
+
+  spinning = true;
+  currentPresenter = null;
+  currentEvaluators = [];
+  phase = 'drawing_presenter';
+
+  updateButton();
+  updatePhaseIndicator();
+  document.getElementById('btnReset').disabled = true;
+
+  const area = document.getElementById('displayArea');
+  area.classList.remove('result-presenter', 'result-evaluators');
+  area.classList.add('spinning');
+  document.getElementById('resultText').style.display = 'none';
+  document.getElementById('evaluatorSection').classList.remove('visible');
+  updateDisplay('?', '正在抽取汇报组...', '');
+
+  runSpin(available, () => stopDrawPresenter());
+}
+
+// ----- Stop Presenter -----
+
+function stopDrawPresenter() {
+  spinning = false;
+  if (spinTimer) { clearTimeout(spinTimer); spinTimer = null; }
+
+  const available = getAvailablePresenters();
+  const pick = available[Math.floor(Math.random() * available.length)];
+
+  currentPresenter = pick;
+  phase = 'presenter_done';
+
+  // Add in-progress round
+  rounds.push({presenter: pick, evaluators: []});
+  saveRounds();
+
+  const area = document.getElementById('displayArea');
+  area.classList.remove('spinning');
+  area.classList.add('result-presenter');
+  updateDisplay(pick, '第' + pick + '组', 'result-presenter');
+  document.getElementById('resultText').style.display = 'block';
+
+  // Show evaluator section (empty slots)
+  document.getElementById('evaluatorSection').classList.add('visible');
+  renderEvaluatorSlots();
+
+  updateButton();
+  updatePhaseIndicator();
+  document.getElementById('btnReset').disabled = false;
+  renderGrid();
+  renderRoundHistory();
+  updateStats();
+}
+
+// ----- Draw Evaluators -----
+
+function startDrawEvaluators() {
+  const available = getAvailableEvaluators();
+  if (available.length < EVAL_COUNT) {
+    // Shouldn't happen with 9 groups, but handle gracefully
+    alert('可用点评组不足4组，请先重置。');
+    return;
+  }
+
+  spinning = true;
+  currentEvaluators = [];
+  phase = 'drawing_evaluators';
+
+  updateButton();
+  updatePhaseIndicator();
+  document.getElementById('btnReset').disabled = true;
+
+  const area = document.getElementById('displayArea');
+  area.classList.remove('result-presenter');
+  area.classList.add('spinning');
+  document.getElementById('evalActionHint').style.display = 'none';
+  updateDisplay(currentPresenter, '正在抽取 4 组点评...', '');
+
+  // Flash through available evaluator candidates
+  const evalCandidates = available;
+  runSpin(evalCandidates, () => stopDrawEvaluators());
+}
+
+// ----- Stop Evaluators -----
+
+function stopDrawEvaluators() {
+  spinning = false;
+  if (spinTimer) { clearTimeout(spinTimer); spinTimer = null; }
+
+  const available = getAvailableEvaluators();
+
+  // Pick 4 distinct evaluators
+  const pool = [...available];
+  const picked = [];
+  for (let i = 0; i < EVAL_COUNT; i++) {
+    const idx = Math.floor(Math.random() * pool.length);
+    picked.push(pool.splice(idx, 1)[0]);
+  }
+  // Sort for display
+  picked.sort((a, b) => a - b);
+  currentEvaluators = picked;
+
+  // Update the current round
+  const lastRound = rounds[rounds.length - 1];
+  if (lastRound && lastRound.presenter === currentPresenter) {
+    lastRound.evaluators = picked;
+  }
+  saveRounds();
+
+  phase = 'evaluators_done';
+
+  const area = document.getElementById('displayArea');
+  area.classList.remove('spinning');
+  area.classList.add('result-evaluators');
+  updateDisplay(currentPresenter, '第' + currentPresenter + '组', 'result-evaluators');
+  document.getElementById('resultText').style.display = 'block';
+
+  // Reveal evaluator slots with staggered animation
+  renderEvaluatorSlots();
+  document.getElementById('evaluatorSection').classList.add('visible');
+  // Show action hint after a brief delay
+  setTimeout(() => {
+    document.getElementById('evalActionHint').style.display = 'block';
+  }, 800);
+
+  updateButton();
+  updatePhaseIndicator();
+  document.getElementById('btnReset').disabled = false;
+  renderGrid();
+  renderRoundHistory();
+  updateStats();
+}
+
+// ----- Shared spin logic -----
+
+function runSpin(items, onStop) {
+  let phase = 1;
+  let flashIdx = 0;
+  const startTime = Date.now();
+
+  function cycle() {
+    const elapsed = Date.now() - startTime;
+
+    if (elapsed < 1500) {
+      phase = 1;
+    } else if (elapsed < 2500) {
+      phase = 2;
+    } else if (elapsed < 3500) {
+      phase = 3;
+    } else {
+      // Auto stop
+      onStop();
+      return;
+    }
+
+    flashIdx = (flashIdx + 1) % items.length;
+    const g = items[flashIdx];
+    updateDisplay(g, '第' + g + '组', '');
+    document.getElementById('displayArea').classList.add('spinning');
+
+    if (currentPresenter === null) {
+      // Drawing presenter — flash on grid
+      renderGrid(g);
+    } else {
+      // Drawing evaluators — flash on grid, keep presenter highlighted
+      renderGrid(g);
+    }
+
+    const delay = phase === 1 ? 60 : phase === 2 ? 130 : 280;
+    spinTimer = setTimeout(cycle, delay);
+  }
+
+  cycle();
+}
+
+// ----- Next Round -----
+
+function nextRound() {
+  currentPresenter = null;
+  currentEvaluators = [];
+  phase = 'idle';
+
+  const area = document.getElementById('displayArea');
+  area.classList.remove('spinning', 'result-presenter', 'result-evaluators');
+  updateDisplay('?', '准备开始', '');
+  document.getElementById('resultText').style.display = 'none';
+  document.getElementById('evalActionHint').style.display = 'none';
+  document.getElementById('evaluatorSection').classList.remove('visible');
+  renderEvaluatorSlots();
+
+  const avail = getAvailablePresenters();
+  if (avail.length === 0) {
+    phase = 'complete';
+  }
+
+  updateButton();
+  updatePhaseIndicator();
+  renderGrid();
+  renderRoundHistory();
+  updateStats();
+}
+
+// ===== Reset =====
+
+function resetAll() {
+  if (spinning) {
+    if (spinTimer) clearTimeout(spinTimer);
+    spinning = false;
+  }
+  rounds = [];
+  currentPresenter = null;
+  currentEvaluators = [];
+  phase = 'idle';
+  saveRounds();
+
+  const area = document.getElementById('displayArea');
+  area.classList.remove('spinning', 'result-presenter', 'result-evaluators');
+  updateDisplay('?', '准备开始', '');
+  document.getElementById('resultText').style.display = 'none';
+  document.getElementById('evalActionHint').style.display = 'none';
+  document.getElementById('evaluatorSection').classList.remove('visible');
+  renderEvaluatorSlots();
+
+  updateButton();
+  updatePhaseIndicator();
+  document.getElementById('btnReset').disabled = false;
+  renderGrid();
+  renderRoundHistory();
+  updateStats();
+}
+
+// ===== Init =====
+
+function init() {
+  rounds = loadRounds();
+
+  // Find in-progress round (has presenter but no evaluators)
+  const inProgress = rounds.find(r => r.evaluators.length === 0);
+  if (inProgress) {
+    currentPresenter = inProgress.presenter;
+    currentEvaluators = [];
+    phase = 'presenter_done';
+  } else if (rounds.length > 0) {
+    const last = rounds[rounds.length - 1];
+    if (last.evaluators.length > 0) {
+      currentPresenter = last.presenter;
+      currentEvaluators = last.evaluators;
+      phase = 'evaluators_done';
+    }
+  }
+
+  // Check if all done
+  if (phase === 'idle' || phase === 'evaluators_done') {
+    const avail = getAvailablePresenters();
+    if (avail.length === 0 && rounds.every(r => r.evaluators.length > 0)) {
+      phase = 'complete';
+    }
+  }
+
+  // Restore UI
+  switch (phase) {
+    case 'presenter_done':
+      updateDisplay(currentPresenter, '第' + currentPresenter + '组', 'result-presenter');
+      document.getElementById('resultText').style.display = 'block';
+      document.getElementById('evaluatorSection').classList.add('visible');
+      renderEvaluatorSlots();
+      break;
+    case 'evaluators_done':
+      updateDisplay(currentPresenter, '第' + currentPresenter + '组', 'result-evaluators');
+      document.getElementById('resultText').style.display = 'block';
+      document.getElementById('evaluatorSection').classList.add('visible');
+      renderEvaluatorSlots();
+      document.getElementById('evalActionHint').style.display = 'block';
+      break;
+    case 'complete':
+      updateDisplay('!', '全部完成', '');
+      break;
+    default:
+      break;
+  }
+
+  updateButton();
+  updatePhaseIndicator();
+  renderGrid();
+  renderRoundHistory();
+  updateStats();
+
+  if (phase === 'complete') {
+    document.getElementById('btnDraw').disabled = true;
+  }
+}
+
+init();
+</script>
+</body>
+</html>
