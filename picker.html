@@ -39,7 +39,7 @@
     bottom: -100px; right: -80px; animation: floatGlow 10s ease-in-out infinite reverse;
   }
 
-  .container { max-width: 840px; width: 100%; position: relative; z-index: 1; }
+  .container { max-width: 1260px; width: 100%; position: relative; z-index: 1; padding: 0 20px; }
 
   /* ===== HEADER ===== */
   .header { text-align: center; margin-bottom: 32px; }
@@ -72,9 +72,19 @@
   .phase-label-mini { font-size: 12px; color: #555; margin: 0 6px; letter-spacing: 1px; }
 
   /* ===== DISPLAY AREA ===== */
+  /* ===== DUAL-COLUMN DESKTOP LAYOUT ===== */
+  .main-layout {
+    display: grid;
+    grid-template-columns: 1fr 1.35fr;
+    gap: 28px;
+    align-items: start;
+  }
+  .left-panel { display: flex; flex-direction: column; }
+  .right-panel { display: flex; flex-direction: column; }
+
   .display-area {
     background: rgba(20,20,40,0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-    border-radius: 28px; padding: 44px 32px; text-align: center; margin-bottom: 20px;
+    border-radius: 28px; padding: 44px 32px; text-align: center; margin-bottom: 16px;
     position: relative; overflow: hidden;
     border: 1px solid rgba(255,255,255,0.06);
     box-shadow: 0 8px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.03);
@@ -343,11 +353,12 @@
   }
   .btn-clear-archive:hover { color: #ef4444; }
 
-  /* ===== RESPONSIVE ===== */
-  @media (max-width: 600px) {
+  /* ===== RESPONSIVE: collapse to single column ===== */
+  @media (max-width: 800px) {
     body { padding: 12px 8px 40px; }
     body::before, body::after { display: none; }
-    .container { max-width: 100%; }
+    .container { max-width: 100%; padding: 0; }
+    .main-layout { grid-template-columns: 1fr; gap: 16px; }
     .header h1 { font-size: 28px; }
     .presenter-display .group-number { font-size: 92px; }
     .group-grid { gap: 8px; }
@@ -379,59 +390,68 @@
     <span class="phase-label-mini">点评</span>
   </div>
 
-  <div class="display-area" id="displayArea">
-    <div class="presenter-display">
-      <div class="phase-label">汇报组</div>
-      <div class="group-number" id="displayPresenter">?</div>
-      <div class="presenter-label" id="displayLabel">准备开始</div>
-    </div>
-    <div class="result-text" id="resultText">&#127942; 请上台汇报！</div>
+  <div class="main-layout">
 
-    <div class="evaluator-section" id="evaluatorSection">
-      <div class="section-title" id="evalSectionTitle">点评组（逐个抽取）</div>
-      <div class="evaluator-slots" id="evaluatorSlots">
-        <div class="eval-slot">?</div>
-        <div class="eval-slot">?</div>
-        <div class="eval-slot">?</div>
-        <div class="eval-slot">?</div>
-      </div>
-      <div class="eval-action-hint" id="evalActionHint">
-        &#9200; 各组讨论 2~3 分钟，派代表上台点评<br>
-        &#128172; 点评后汇报组可回应，双向交流
+    <!-- LEFT: group grid -->
+    <div class="left-panel">
+      <div class="group-grid" id="groupGrid"></div>
+      <div class="stats">
+        <div class="remaining">待汇报 <span id="remainingCount">10</span> 组</div>
+        <div class="remaining" style="color:#888;">已完成 <span id="completedRounds" style="color:#22c55e;font-weight:700;">0</span> 轮</div>
       </div>
     </div>
-  </div>
 
-  <div class="btn-row">
-    <button class="btn btn-draw" id="btnDraw" onclick="toggleDraw()">开始抽取汇报组</button>
-    <button class="btn btn-next" id="btnNext" onclick="clickNextRound()" style="display:none;">下一组</button>
-  </div>
+    <!-- RIGHT: display + controls -->
+    <div class="right-panel">
+      <div class="display-area" id="displayArea">
+        <div class="presenter-display">
+          <div class="phase-label">汇报组</div>
+          <div class="group-number" id="displayPresenter">?</div>
+          <div class="presenter-label" id="displayLabel">准备开始</div>
+        </div>
+        <div class="result-text" id="resultText">&#127942; 请上台汇报！</div>
 
-  <div class="group-grid" id="groupGrid"></div>
+        <div class="evaluator-section" id="evaluatorSection">
+          <div class="section-title" id="evalSectionTitle">点评组（逐个抽取）</div>
+          <div class="evaluator-slots" id="evaluatorSlots">
+            <div class="eval-slot">?</div>
+            <div class="eval-slot">?</div>
+            <div class="eval-slot">?</div>
+            <div class="eval-slot">?</div>
+          </div>
+          <div class="eval-action-hint" id="evalActionHint">
+            &#9200; 各组讨论 2~3 分钟，派代表上台点评<br>
+            &#128172; 点评后汇报组可回应，双向交流
+          </div>
+        </div>
+      </div>
 
-  <div class="stats">
-    <div class="remaining">待汇报 <span id="remainingCount">10</span> 组</div>
-    <div class="remaining" style="color:#888;">已完成 <span id="completedRounds" style="color:#22c55e;font-weight:700;">0</span> 轮</div>
-  </div>
+      <div class="btn-row">
+        <button class="btn btn-draw" id="btnDraw" onclick="toggleDraw()">开始抽取汇报组</button>
+        <button class="btn btn-next" id="btnNext" onclick="clickNextRound()" style="display:none;">下一组</button>
+      </div>
 
-  <div class="history">
-    <h3>&#128214; 本轮抽取记录</h3>
-    <div class="history-list" id="historyList">
-      <span class="empty">尚未抽取</span>
+      <div class="history">
+        <h3>&#128214; 本轮抽取记录</h3>
+        <div class="history-list" id="historyList">
+          <span class="empty">尚未抽取</span>
+        </div>
+      </div>
+
+      <button class="btn-archive" id="btnArchive" onclick="toggleArchive()">
+        &#128451; 查看全部抽签记录（<span id="archiveCount">0</span> 条历史）
+      </button>
+      <div class="archive-panel" id="archivePanel">
+        <h3>&#128451; 全部抽签记录（持久保存）</h3>
+        <button class="btn-clear-archive" onclick="clearArchive()">清空记录</button>
+        <div id="archiveList"></div>
+      </div>
+
+      <div class="btn-row" style="margin-top: 4px;">
+        <button class="btn btn-reset" id="btnReset" onclick="resetAll()">重置本轮（历史记录保留）</button>
+      </div>
     </div>
-  </div>
 
-  <button class="btn-archive" id="btnArchive" onclick="toggleArchive()">
-    &#128451; 查看全部抽签记录（<span id="archiveCount">0</span> 条历史）
-  </button>
-  <div class="archive-panel" id="archivePanel">
-    <h3>&#128451; 全部抽签记录（持久保存）</h3>
-    <button class="btn-clear-archive" onclick="clearArchive()">清空记录</button>
-    <div id="archiveList"></div>
-  </div>
-
-  <div class="btn-row" style="margin-top: 4px;">
-    <button class="btn btn-reset" id="btnReset" onclick="resetAll()">重置本轮（历史记录保留）</button>
   </div>
 </div>
 
