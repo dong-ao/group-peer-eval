@@ -773,14 +773,20 @@ function init() {
   try { soundEnabled = localStorage.getItem('group_sound_enabled') !== '0'; } catch(e) { soundEnabled = true; }
   if (!soundEnabled) { document.getElementById('soundToggle').innerHTML = '&#128263;'; document.getElementById('soundToggle').classList.add('muted'); }
 
-  // If completely fresh (no rounds ever), pre-mark 1,3,6 as presented
-  if (rounds.length === 0 && loadArchive().length === 0) {
-    PRE_DRAWN.forEach(g => {
-      rounds.push({presenter: g, evaluators: []});
-      saveArchiveEntry({presenter: g, evaluators: [], timestamp: new Date('2026-06-05').toISOString()});
-    });
-    saveRounds();
-  }
+  // Always ensure 1,3,6 are marked as presented (never in presenter pool)
+  const didPresent = new Set(rounds.map(r => r.presenter));
+  const archiveCheck = loadArchive();
+  let changed = false;
+  PRE_DRAWN.forEach(g => {
+    if (!didPresent.has(g)) {
+      rounds.unshift({presenter: g, evaluators: []});
+      changed = true;
+      if (!archiveCheck.some(a => a.presenter === g)) {
+        saveArchiveEntry({presenter: g, evaluators: [], timestamp: new Date('2026-06-05').toISOString()});
+      }
+    }
+  });
+  if (changed) saveRounds();
 
   // Restore state
   const inProgress = rounds.find(r => r.evaluators.length === 0);
