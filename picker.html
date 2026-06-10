@@ -495,6 +495,22 @@ function playReveal() {
   } catch(e) {}
 }
 
+function playLanding() {
+  if (!soundEnabled) return;
+  try {
+    const ctx = getCtx(); if (!ctx) return;
+    // Low-frequency "lock-in" thud
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.frequency.setValueAtTime(180, ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(55, ctx.currentTime + 0.25);
+    o.type = 'sine';
+    g.gain.setValueAtTime(0.22, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+    o.start(ctx.currentTime); o.stop(ctx.currentTime + 0.3);
+  } catch(e) {}
+}
+
 function playFinish() {
   if (!soundEnabled) return;
   try {
@@ -890,7 +906,12 @@ function runSpin(items, target, onStop) {
   }
 
   function step() {
-    if (idx >= seq.length) { onStop(); return; }
+    if (idx >= seq.length) {
+      // Sequence ended: lock-in sound, brief pause, then reveal
+      playLanding();
+      spinTimer = setTimeout(onStop, 220);
+      return;
+    }
     const g = seq[idx];
     updateDisplay(g, '第'+g+'组', '');
     renderGrid(g);
