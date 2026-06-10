@@ -89,6 +89,11 @@
     background: linear-gradient(135deg, #22c55e, #16a34a);
     box-shadow: 0 6px 24px rgba(34,197,94,0.4);
   }
+  .btn-next {
+    flex: 0.35; background: transparent; border: 2px solid #3a3a5a;
+    color: #999; font-size: 15px;
+  }
+  .btn-next:hover { border-color: #22c55e; color: #22c55e; }
   .btn-reset {
     background: transparent; border: 2px solid #3a3a5a; color: #666; font-size: 13px;
     padding: 10px; width: 100%;
@@ -251,6 +256,7 @@
 
   <div class="btn-row">
     <button class="btn btn-draw" id="btnDraw" onclick="toggleDraw()">开始抽取汇报组</button>
+    <button class="btn btn-next" id="btnNext" onclick="clickNextRound()" style="display:none;">下一组</button>
   </div>
 
   <div class="group-grid" id="groupGrid"></div>
@@ -553,18 +559,29 @@ function updateDisplay(num, label, cls) {
 
 function updateButton() {
   const btn = document.getElementById('btnDraw');
+  const btnNext = document.getElementById('btnNext');
   btn.classList.remove('drawing','next-round');
   btn.disabled = false;
+  btnNext.style.display = 'none';
 
   const drawn = currentEvaluators.length;
 
   switch (phase) {
-    case 'idle': btn.textContent = '开始抽取汇报组'; break;
-    case 'drawing_presenter': btn.textContent = '停止抽取'; btn.classList.add('drawing'); break;
+    case 'idle':
+      btn.textContent = '开始抽取汇报组';
+      break;
+    case 'drawing_presenter':
+      btn.textContent = '停止抽取'; btn.classList.add('drawing');
+      break;
     case 'presenter_done':
     case 'evaluator_partial':
-      btn.textContent = '抽取点评组 ('+(drawn+1)+'/'+EVAL_COUNT+')'; break;
-    case 'drawing_evaluator': btn.textContent = '停止抽取'; btn.classList.add('drawing'); break;
+      btn.textContent = '抽取点评 ('+(drawn+1)+'/'+EVAL_COUNT+')';
+      btnNext.textContent = '下一组';
+      btnNext.style.display = 'block';
+      break;
+    case 'drawing_evaluator':
+      btn.textContent = '停止抽取'; btn.classList.add('drawing');
+      break;
     case 'evaluators_done': {
       const avail = getAvailablePresenters();
       btn.textContent = avail.length > 0 ? '下一轮（抽汇报组）' : '全部完成！';
@@ -572,7 +589,9 @@ function updateButton() {
       else btn.classList.add('next-round');
       break;
     }
-    case 'complete': btn.textContent = '全部完成！'; btn.disabled = true; break;
+    case 'complete':
+      btn.textContent = '全部完成！'; btn.disabled = true;
+      break;
   }
 }
 
@@ -735,6 +754,13 @@ function runSpin(items, target, onStop) {
 }
 
 // ===== Next Round =====
+
+// "下一组" 按钮 — 跳过剩余点评，直接进入下一轮
+function clickNextRound() {
+  if (spinning) return;
+  // 当前轮次已有 evaluators 数据已在 revealOneEvaluator 中保存
+  nextRound();
+}
 
 function nextRound() {
   currentPresenter = null; currentEvaluators = []; preSelectedEvaluators = [];
