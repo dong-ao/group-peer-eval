@@ -460,25 +460,30 @@ function getAllPreviousEvaluators() {
 
 // ===== Evaluator pre-selection (≥3 fresh across rounds) =====
 
-function preSelectAllEvaluators() {
-  const available = getAvailableEvaluators(); // excludes presenter + already picked this round
-  const allPrev = getAllPreviousEvaluators();
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
 
-  // Split into fresh (never been evaluator) and used
+function preSelectAllEvaluators() {
+  const available = getAvailableEvaluators();
+  const allPrev = getAllPreviousEvaluators();
   const fresh = available.filter(g => !allPrev.has(g));
-  const used = available.filter(g => allPrev.has(g));
 
   const picked = [];
-  // Take up to 3 from fresh
-  const shuffledFresh = [...fresh].sort(() => Math.random() - 0.5);
+  const shuffledFresh = shuffle(fresh);
   picked.push(...shuffledFresh.slice(0, 3));
 
-  // Fill remaining from any available
   const rest = available.filter(g => !picked.includes(g));
-  const shuffledRest = [...rest].sort(() => Math.random() - 0.5);
+  const shuffledRest = shuffle(rest);
   while (picked.length < EVAL_COUNT) picked.push(shuffledRest.shift());
 
-  return picked.sort((a, b) => a - b);
+  // 打乱揭晓顺序，避免每次都是小号先出
+  return shuffle(picked);
 }
 
 // ===== Rendering =====
