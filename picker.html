@@ -13,7 +13,6 @@
   }
   .container { max-width: 500px; width: 100%; }
 
-  /* Header */
   .header { text-align: center; margin-bottom: 20px; }
   .header h1 { font-size: 26px; color: #fff; }
   .header p { font-size: 14px; color: #888; margin-top: 6px; }
@@ -28,41 +27,34 @@
   .display-area.result-presenter { border-color: #22c55e; box-shadow: 0 0 40px rgba(34,197,94,0.3); }
   .display-area.result-evaluators { border-color: #3b82f6; box-shadow: 0 0 40px rgba(59,130,246,0.3); }
 
-  .phase-label {
-    font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px;
-  }
+  .phase-label { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
 
-  /* Presenter display */
-  .presenter-display { margin-bottom: 8px; }
   .presenter-display .group-number {
-    font-size: 88px; font-weight: 800; color: #6366f1; line-height: 1;
-    transition: color 0.3s, transform 0.1s;
+    font-size: 88px; font-weight: 800; color: #6366f1; line-height: 1; transition: color 0.3s, transform 0.1s;
   }
   .display-area.result-presenter .presenter-display .group-number { color: #22c55e; }
   .presenter-label { font-size: 15px; color: #aaa; margin-top: 4px; }
 
-  /* Evaluator display */
   .evaluator-section {
-    display: none; margin-top: 16px; padding-top: 16px;
-    border-top: 1px solid #2a2a4a;
+    display: none; margin-top: 16px; padding-top: 16px; border-top: 1px solid #2a2a4a;
   }
   .evaluator-section.visible { display: block; }
-  .evaluator-section .section-title {
-    font-size: 13px; color: #888; margin-bottom: 10px;
-  }
-  .evaluator-slots {
-    display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
-  }
+  .evaluator-section .section-title { font-size: 13px; color: #888; margin-bottom: 10px; }
+  .evaluator-slots { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
   .eval-slot {
     width: 56px; height: 56px; border-radius: 14px;
     background: #1e1e36; border: 2px dashed #3a3a5a;
     display: flex; align-items: center; justify-content: center;
-    font-size: 22px; font-weight: 700; color: #555;
-    transition: all 0.4s;
+    font-size: 22px; font-weight: 700; color: #555; transition: all 0.4s;
   }
   .eval-slot.filled {
     background: #1a2440; border-color: #3b82f6; border-style: solid;
     color: #60a5fa; animation: evaluatorReveal 0.5s ease-out;
+  }
+  .eval-slot.revealing {
+    border-color: #fbbf24; color: #fbbf24;
+    box-shadow: 0 0 16px rgba(251,191,36,0.5);
+    animation: evaluatorReveal 0.5s ease-out;
   }
   @keyframes evaluatorReveal {
     0% { transform: scale(0.5); opacity: 0; }
@@ -70,23 +62,18 @@
     100% { transform: scale(1); opacity: 1; }
   }
 
-  .result-text {
-    display: none; font-size: 15px; color: #22c55e; margin-top: 10px; font-weight: 600;
-  }
+  .result-text { display: none; font-size: 15px; color: #22c55e; margin-top: 10px; font-weight: 600; }
   .display-area.result-presenter .result-text { display: block; }
-
-  /* Evaluator action hint */
   .eval-action-hint {
     display: none; margin-top: 12px; font-size: 13px; color: #fbbf24; line-height: 1.6;
   }
   .display-area.result-evaluators .eval-action-hint { display: block; }
 
-  /* Button */
+  /* Buttons */
   .btn-row { display: flex; gap: 10px; margin-bottom: 10px; }
   .btn {
     flex: 1; padding: 15px 12px; border: none; border-radius: 14px;
-    font-size: 17px; font-weight: 700; cursor: pointer; transition: all 0.2s;
-    white-space: nowrap;
+    font-size: 17px; font-weight: 700; cursor: pointer; transition: all 0.2s; white-space: nowrap;
   }
   .btn:active { transform: scale(0.96); }
   .btn-draw {
@@ -108,10 +95,18 @@
   }
   .btn-reset:hover { border-color: #ef4444; color: #ef4444; }
 
-  /* Group grid */
-  .group-grid {
-    display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 16px;
+  /* Sound toggle */
+  .sound-toggle {
+    position: fixed; top: 12px; right: 12px; z-index: 100;
+    width: 36px; height: 36px; border-radius: 50%; border: 1px solid #3a3a5a;
+    background: #1a1a2e; color: #888; font-size: 18px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
   }
+  .sound-toggle:hover { border-color: #6366f1; }
+  .sound-toggle.muted { color: #555; }
+
+  /* Group grid */
+  .group-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 16px; }
   .group-card {
     aspect-ratio: 1; display: flex; flex-direction: column;
     align-items: center; justify-content: center;
@@ -119,60 +114,46 @@
     background: #1a1a2e; border: 2px solid #2a2a4a; color: #ccc;
     transition: all 0.15s; position: relative; cursor: default;
   }
-  .group-card small { font-size: 10px; font-weight: 400; color: #888; margin-top: 2px; }
+  .group-card small { font-size: 10px; font-weight: 400; color: #888; margin-top: 2px; max-width: 90%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .group-card .badge {
     display: none; position: absolute; top: 4px; right: 6px;
-    font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 10px;
-    line-height: 1.4;
+    font-size: 9px; font-weight: 600; padding: 1px 5px; border-radius: 10px; line-height: 1.4;
   }
 
-  /* Presenter */
   .group-card.is-presenter {
     background: #1a2e1a; border-color: #22c55e; color: #4ade80;
     box-shadow: 0 0 20px rgba(34,197,94,0.4);
   }
-  .group-card.is-presenter .badge {
-    display: block; background: #22c55e; color: #000;
-  }
+  .group-card.is-presenter .badge { display: block; background: #22c55e; color: #000; }
 
-  /* Evaluator */
   .group-card.is-evaluator {
     background: #1a2440; border-color: #3b82f6; color: #93c5fd;
     box-shadow: 0 0 16px rgba(59,130,246,0.35);
   }
-  .group-card.is-evaluator .badge {
-    display: block; background: #3b82f6; color: #fff;
-  }
+  .group-card.is-evaluator .badge { display: block; background: #3b82f6; color: #fff; }
 
-  /* Done (presented before) */
   .group-card.is-done {
     background: #1e1e2a; border-color: #2a2a3a; color: #666;
   }
   .group-card.is-done::after {
-    content: '✓'; position: absolute; top: 4px; right: 8px;
-    font-size: 12px; color: #555;
+    content: '✓'; position: absolute; top: 4px; right: 8px; font-size: 12px; color: #555;
   }
 
-  /* Flash during spin — border glow only, color stays neutral for trajectory visibility */
   .group-card.spin-active {
     border-color: #fbbf24; color: #fbbf24;
-    box-shadow: 0 0 20px rgba(251,191,36,0.5);
-    transform: scale(1.06);
+    box-shadow: 0 0 20px rgba(251,191,36,0.5); transform: scale(1.06);
   }
 
-  /* Stats */
   .stats { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
   .stats .remaining { font-size: 13px; color: #888; }
   .stats .remaining span { color: #6366f1; font-weight: 700; font-size: 17px; }
 
-  /* Phase indicator dots */
   .phase-indicator { display: flex; gap: 6px; align-items: center; justify-content: center; margin-bottom: 16px; }
   .phase-dot { width: 8px; height: 8px; border-radius: 50%; background: #2a2a4a; transition: all 0.3s; }
   .phase-dot.active { background: #6366f1; box-shadow: 0 0 8px rgba(99,102,241,0.6); }
   .phase-dot.done { background: #22c55e; }
   .phase-label-mini { font-size: 11px; color: #666; margin: 0 4px; }
 
-  /* Round History */
   .history { background: #1a1a2e; border-radius: 14px; padding: 16px; margin-bottom: 12px; }
   .history h3 { font-size: 14px; color: #888; margin-bottom: 12px; }
   .history-list { display: flex; flex-direction: column; gap: 8px; min-height: 24px; }
@@ -186,7 +167,6 @@
   .round-card .eval-names { color: #93c5fd; }
   .round-card .arrow { color: #666; margin: 0 4px; }
 
-  /* Archive panel */
   .archive-panel {
     display: none; background: #1a1a2e; border-radius: 14px; padding: 16px; margin-bottom: 12px;
     border: 1px solid #6366f1;
@@ -203,11 +183,9 @@
 
   .btn-archive {
     width: 100%; padding: 10px; border: 1px solid #3a3a5a; border-radius: 12px;
-    background: transparent; color: #888; font-size: 13px; cursor: pointer;
-    margin-bottom: 10px; transition: all 0.2s;
+    background: transparent; color: #888; font-size: 13px; cursor: pointer; margin-bottom: 10px; transition: all 0.2s;
   }
   .btn-archive:hover { border-color: #6366f1; color: #6366f1; }
-
   .btn-clear-archive {
     background: transparent; border: none; color: #ef4444; font-size: 12px;
     cursor: pointer; padding: 4px 8px; float: right;
@@ -230,13 +208,16 @@
 </style>
 </head>
 <body>
+
+<!-- Sound toggle -->
+<button class="sound-toggle" id="soundToggle" onclick="toggleSound()" title="音效开关">&#128264;</button>
+
 <div class="container">
   <div class="header">
     <h1>&#127919; 抽组演进</h1>
-    <p>抽汇报组 → 抽 4 组点评</p>
+    <p>抽汇报组 → 逐个抽 4 组点评</p>
   </div>
 
-  <!-- Phase indicator -->
   <div class="phase-indicator">
     <div class="phase-dot active" id="phaseDot1"></div>
     <span class="phase-label-mini">汇报</span>
@@ -245,9 +226,7 @@
     <span class="phase-label-mini">点评</span>
   </div>
 
-  <!-- Main display -->
   <div class="display-area" id="displayArea">
-    <!-- Presenter section -->
     <div class="presenter-display">
       <div class="phase-label">汇报组</div>
       <div class="group-number" id="displayPresenter">?</div>
@@ -255,9 +234,8 @@
     </div>
     <div class="result-text" id="resultText">&#127942; 请上台汇报！</div>
 
-    <!-- Evaluator section -->
     <div class="evaluator-section" id="evaluatorSection">
-      <div class="section-title">点评组（抽 4 组）</div>
+      <div class="section-title" id="evalSectionTitle">点评组（逐个抽取）</div>
       <div class="evaluator-slots" id="evaluatorSlots">
         <div class="eval-slot">?</div>
         <div class="eval-slot">?</div>
@@ -271,21 +249,17 @@
     </div>
   </div>
 
-  <!-- Buttons -->
   <div class="btn-row">
     <button class="btn btn-draw" id="btnDraw" onclick="toggleDraw()">开始抽取汇报组</button>
   </div>
 
-  <!-- Group grid -->
   <div class="group-grid" id="groupGrid"></div>
 
-  <!-- Stats -->
   <div class="stats">
     <div class="remaining">待汇报 <span id="remainingCount">10</span> 组</div>
     <div class="remaining" style="color:#888;">已完成 <span id="completedRounds" style="color:#22c55e;font-weight:700;">0</span> 轮</div>
   </div>
 
-  <!-- Round History (current session) -->
   <div class="history">
     <h3>&#128214; 本轮抽取记录</h3>
     <div class="history-list" id="historyList">
@@ -293,7 +267,6 @@
     </div>
   </div>
 
-  <!-- Archive: persistent across resets -->
   <button class="btn-archive" id="btnArchive" onclick="toggleArchive()">
     &#128451; 查看全部抽签记录（<span id="archiveCount">0</span> 条历史）
   </button>
@@ -303,7 +276,6 @@
     <div id="archiveList"></div>
   </div>
 
-  <!-- Reset at bottom, away from main action -->
   <div class="btn-row" style="margin-top: 4px;">
     <button class="btn btn-reset" id="btnReset" onclick="resetAll()">重置本轮（历史记录保留）</button>
   </div>
@@ -312,29 +284,86 @@
 <script>
 const TOTAL = 10;
 const EVAL_COUNT = 4;
+const PRE_DRAWN = [1, 3, 6]; // 上次课已抽过的组
 
-// 组名概括（3~6字）
 const GROUP_NAMES = {
-  1: 'AI谄媚与推理',
-  2: '隐私信息均衡',
-  3: 'AI共情抑制',
-  4: '人机协同学习',
-  5: 'AI美育干预',
-  6: '病毒传播教育',
-  7: 'AI失真批判',
-  8: 'AI模拟教学',
-  9: 'AI幻觉免疫',
-  10: '绘本戏剧干预'
+  1: 'AI谄媚与推理', 2: '隐私信息均衡', 3: 'AI共情抑制',
+  4: '人机协同学习', 5: 'AI美育干预', 6: '病毒传播教育',
+  7: 'AI失真批判', 8: 'AI模拟教学', 9: 'AI幻觉免疫', 10: '绘本戏剧干预'
 };
 
-// rounds: [{presenter: N, evaluators: [a,b,c,d]}, ...]
-let rounds = [];
+let rounds = [];            // [{presenter:N, evaluators:[a,b,c,d]}, ...]
 let currentPresenter = null;
-let currentEvaluators = [];
-// phase: idle | drawing_presenter | presenter_done | drawing_evaluators | evaluators_done | complete
+let currentEvaluators = []; // filled one at a time
 let phase = 'idle';
 let spinning = false;
 let spinTimer = null;
+let preSelectedEvaluators = []; // all 4 pre-selected, revealed one-by-one
+let soundEnabled = true;
+
+// ===== Sound Engine =====
+
+let audioCtx = null;
+function getCtx() {
+  if (!audioCtx) {
+    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+  }
+  return audioCtx;
+}
+
+function playTick() {
+  if (!soundEnabled) return;
+  try {
+    const ctx = getCtx(); if (!ctx) return;
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.frequency.value = 600 + Math.random() * 500;
+    o.type = 'sine';
+    g.gain.setValueAtTime(0.06, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.04);
+    o.start(ctx.currentTime); o.stop(ctx.currentTime + 0.04);
+  } catch(e) {}
+}
+
+function playReveal() {
+  if (!soundEnabled) return;
+  try {
+    const ctx = getCtx(); if (!ctx) return;
+    [523, 659, 784].forEach((f, i) => {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.frequency.value = f; o.type = 'sine';
+      const t = ctx.currentTime + i * 0.1;
+      g.gain.setValueAtTime(0.12, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+      o.start(t); o.stop(t + 0.25);
+    });
+  } catch(e) {}
+}
+
+function playFinish() {
+  if (!soundEnabled) return;
+  try {
+    const ctx = getCtx(); if (!ctx) return;
+    [523, 659, 784, 1047].forEach((f, i) => {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.frequency.value = f; o.type = 'triangle';
+      const t = ctx.currentTime + i * 0.15;
+      g.gain.setValueAtTime(0.1, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+      o.start(t); o.stop(t + 0.4);
+    });
+  } catch(e) {}
+}
+
+function toggleSound() {
+  soundEnabled = !soundEnabled;
+  document.getElementById('soundToggle').innerHTML = soundEnabled ? '&#128264;' : '&#128263;';
+  if (soundEnabled) document.getElementById('soundToggle').classList.remove('muted');
+  else document.getElementById('soundToggle').classList.add('muted');
+  localStorage.setItem('group_sound_enabled', soundEnabled ? '1' : '0');
+}
 
 // ===== Persistence =====
 
@@ -344,13 +373,10 @@ function loadRounds() {
     if (raw) return JSON.parse(raw);
     const old = localStorage.getItem('group_pick_history');
     if (old) {
-      const oldHistory = JSON.parse(old);
-      if (Array.isArray(oldHistory) && oldHistory.length > 0 && typeof oldHistory[0] === 'number') {
-        return oldHistory.map(p => ({presenter: p, evaluators: []}));
-      }
-      if (Array.isArray(oldHistory) && oldHistory.length > 0 && oldHistory[0].presenter) {
-        return oldHistory;
-      }
+      const h = JSON.parse(old);
+      if (Array.isArray(h) && h.length > 0 && typeof h[0] === 'number')
+        return h.map(p => ({presenter: p, evaluators: []}));
+      if (Array.isArray(h) && h.length > 0 && h[0].presenter) return h;
     }
     return [];
   } catch(e) { return []; }
@@ -360,12 +386,8 @@ function saveRounds() {
   localStorage.setItem('group_rounds_v2', JSON.stringify(rounds));
 }
 
-// Archive — persistent across resets, never cleared except explicitly
 function loadArchive() {
-  try {
-    const raw = localStorage.getItem('group_rounds_archive');
-    return raw ? JSON.parse(raw) : [];
-  } catch(e) { return []; }
+  try { return JSON.parse(localStorage.getItem('group_rounds_archive') || '[]'); } catch(e) { return []; }
 }
 
 function saveArchiveEntry(entry) {
@@ -374,8 +396,14 @@ function saveArchiveEntry(entry) {
   localStorage.setItem('group_rounds_archive', JSON.stringify(archive));
 }
 
+function updateArchiveLast(updater) {
+  const archive = loadArchive();
+  if (archive.length > 0) { updater(archive[archive.length - 1]); }
+  localStorage.setItem('group_rounds_archive', JSON.stringify(archive));
+}
+
 function clearArchive() {
-  if (confirm('确定要清空全部抽签历史记录吗？此操作不可撤销。')) {
+  if (confirm('确定清空全部抽签历史记录吗？')) {
     localStorage.removeItem('group_rounds_archive');
     renderArchive();
   }
@@ -383,37 +411,23 @@ function clearArchive() {
 
 function renderArchive() {
   const archive = loadArchive();
-  const list = document.getElementById('archiveList');
   document.getElementById('archiveCount').textContent = archive.length;
-
+  const list = document.getElementById('archiveList');
   if (archive.length === 0) {
-    list.innerHTML = '<div class="archive-empty">暂无历史记录</div>';
-    return;
+    list.innerHTML = '<div class="archive-empty">暂无历史记录</div>'; return;
   }
-
-  list.innerHTML = archive.slice().reverse().map((entry, i) => {
-    const d = new Date(entry.timestamp);
-    const timeStr = d.getFullYear() + '-' +
-      String(d.getMonth() + 1).padStart(2, '0') + '-' +
-      String(d.getDate()).padStart(2, '0') + ' ' +
-      String(d.getHours()).padStart(2, '0') + ':' +
-      String(d.getMinutes()).padStart(2, '0');
-    const evalStr = entry.evaluators.length > 0
-      ? ' → 第' + entry.evaluators.join('、') + '组 点评'
-      : '（未抽点评组）';
-    return '<div class="archive-item">'
-      + '<span class="detail"><b style="color:#4ade80;">第' + entry.presenter + '组</b> 汇报' + evalStr + '</span>'
-      + ' <span class="time">' + timeStr + '</span>'
-      + '</div>';
+  list.innerHTML = archive.slice().reverse().map(e => {
+    const d = new Date(e.timestamp);
+    const ts = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+    const es = e.evaluators.length > 0 ? ' → 第'+e.evaluators.join('、')+'组 点评' : '（未抽点评组）';
+    return '<div class="archive-item"><span class="detail"><b style="color:#4ade80;">第'+e.presenter+'组</b> 汇报'+es+'</span> <span class="time">'+ts+'</span></div>';
   }).join('');
 }
 
 function toggleArchive() {
   const panel = document.getElementById('archivePanel');
   panel.classList.toggle('visible');
-  if (panel.classList.contains('visible')) {
-    renderArchive();
-  }
+  if (panel.classList.contains('visible')) renderArchive();
 }
 
 // ===== State helpers =====
@@ -425,18 +439,45 @@ function getPresentedSet() {
 function getAvailablePresenters() {
   const done = getPresentedSet();
   const avail = [];
-  for (let i = 1; i <= TOTAL; i++) {
-    if (!done.has(i)) avail.push(i);
-  }
+  for (let i = 1; i <= TOTAL; i++) if (!done.has(i)) avail.push(i);
   return avail;
 }
 
 function getAvailableEvaluators() {
   const avail = [];
   for (let i = 1; i <= TOTAL; i++) {
-    if (i !== currentPresenter) avail.push(i);
+    if (i !== currentPresenter && !currentEvaluators.includes(i)) avail.push(i);
   }
   return avail;
+}
+
+function getAllPreviousEvaluators() {
+  const s = new Set();
+  rounds.forEach(r => r.evaluators.forEach(e => s.add(e)));
+  return s;
+}
+
+// ===== Evaluator pre-selection (≥3 fresh across rounds) =====
+
+function preSelectAllEvaluators() {
+  const available = getAvailableEvaluators(); // excludes presenter + already picked this round
+  const allPrev = getAllPreviousEvaluators();
+
+  // Split into fresh (never been evaluator) and used
+  const fresh = available.filter(g => !allPrev.has(g));
+  const used = available.filter(g => allPrev.has(g));
+
+  const picked = [];
+  // Take up to 3 from fresh
+  const shuffledFresh = [...fresh].sort(() => Math.random() - 0.5);
+  picked.push(...shuffledFresh.slice(0, 3));
+
+  // Fill remaining from any available
+  const rest = available.filter(g => !picked.includes(g));
+  const shuffledRest = [...rest].sort(() => Math.random() - 0.5);
+  while (picked.length < EVAL_COUNT) picked.push(shuffledRest.shift());
+
+  return picked.sort((a, b) => a - b);
 }
 
 // ===== Rendering =====
@@ -447,426 +488,280 @@ function renderGrid(spinHighlight) {
   const evalSet = new Set(currentEvaluators);
   let html = '';
   for (let i = 1; i <= TOTAL; i++) {
-    let cls = 'group-card';
-    let badge = '';
+    let cls = 'group-card', badge = '';
+    if (i === currentPresenter) { cls += ' is-presenter'; badge = '<span class="badge">汇报</span>'; }
+    else if (evalSet.has(i)) { cls += ' is-evaluator'; badge = '<span class="badge">点评</span>'; }
+    else if (presented.has(i) && i !== currentPresenter) { cls += ' is-done'; }
 
-    if (i === currentPresenter) {
-      cls += ' is-presenter';
-      badge = '<span class="badge">汇报</span>';
-    } else if (evalSet.has(i)) {
-      cls += ' is-evaluator';
-      badge = '<span class="badge">点评</span>';
-    } else if (presented.has(i) && i !== currentPresenter) {
-      cls += ' is-done';
-    }
+    if (spinHighlight === i && i !== currentPresenter && !evalSet.has(i)) cls += ' spin-active';
 
-    // Spin highlight — only apply to non-presenter, non-evaluator, non-done cards
-    if (spinHighlight === i && i !== currentPresenter && !evalSet.has(i)) {
-      cls += ' spin-active';
-    }
-
-    html += '<div class="' + cls + '">' + badge + i + '<small>' + (GROUP_NAMES[i] || '第' + i + '组') + '</small></div>';
+    html += '<div class="'+cls+'">'+badge+i+'<small>'+(GROUP_NAMES[i]||'第'+i+'组')+'</small></div>';
   }
   grid.innerHTML = html;
 }
 
-function renderEvaluatorSlots() {
+function renderEvaluatorSlots(revealingIdx) {
   const slots = document.getElementById('evaluatorSlots');
   let html = '';
   for (let i = 0; i < EVAL_COUNT; i++) {
     const val = currentEvaluators[i] || null;
-    const cls = val ? 'eval-slot filled' : 'eval-slot';
-    const text = val ? val : '?';
-    html += '<div class="' + cls + '">' + text + '</div>';
+    let cls = 'eval-slot';
+    if (val) cls += ' filled';
+    if (i === revealingIdx) cls += ' revealing';
+    html += '<div class="'+cls+'">'+(val||'?')+'</div>';
   }
   slots.innerHTML = html;
 }
 
 function renderRoundHistory() {
   const list = document.getElementById('historyList');
-  if (rounds.length === 0) {
-    list.innerHTML = '<span class="empty">尚未抽取</span>';
-    return;
-  }
+  if (rounds.length === 0) { list.innerHTML = '<span class="empty">尚未抽取</span>'; return; }
   list.innerHTML = rounds.map((r, i) => {
-    const evalStr = r.evaluators.length > 0
-      ? '<span class="eval-names">第' + r.evaluators.join('、') + '组</span>'
-      : '<span style="color:#666;">未抽点评组</span>';
-    return '<div class="round-card">'
-      + '<span class="round-num">第' + (i + 1) + '轮</span> '
-      + '<span class="presenter-name">第' + r.presenter + '组</span> 汇报'
-      + '<span class="arrow">→</span>'
-      + evalStr + ' 点评'
-      + '</div>';
+    const es = r.evaluators.length > 0 ? '<span class="eval-names">第'+r.evaluators.join('、')+'组</span>' : '<span style="color:#666;">未抽点评组</span>';
+    return '<div class="round-card"><span class="round-num">第'+(i+1)+'轮</span> <span class="presenter-name">第'+r.presenter+'组</span> 汇报<span class="arrow">→</span>'+es+' 点评</div>';
   }).join('');
 }
 
 function updateStats() {
   document.getElementById('remainingCount').textContent = TOTAL - getPresentedSet().size;
-  document.getElementById('completedRounds').textContent = rounds.filter(r => r.evaluators.length > 0).length;
+  document.getElementById('completedRounds').textContent = rounds.filter(r => r.evaluators.length >= EVAL_COUNT).length;
 }
 
 function updatePhaseIndicator() {
-  const dot1 = document.getElementById('phaseDot1');
-  const dot2 = document.getElementById('phaseDot2');
-  dot1.classList.remove('active', 'done');
-  dot2.classList.remove('active', 'done');
-
-  if (phase === 'idle' || phase === 'drawing_presenter') {
-    dot1.classList.add('active');
-  } else if (phase === 'presenter_done' || phase === 'drawing_evaluators') {
-    dot1.classList.add('done');
-    dot2.classList.add('active');
-  } else if (phase === 'evaluators_done' || phase === 'complete') {
-    dot1.classList.add('done');
-    dot2.classList.add('done');
-  }
+  const d1 = document.getElementById('phaseDot1'), d2 = document.getElementById('phaseDot2');
+  d1.classList.remove('active','done'); d2.classList.remove('active','done');
+  if (phase === 'idle' || phase === 'drawing_presenter') d1.classList.add('active');
+  else if (phase === 'presenter_done' || phase === 'drawing_evaluator' || phase === 'evaluator_partial') { d1.classList.add('done'); d2.classList.add('active'); }
+  else { d1.classList.add('done'); d2.classList.add('done'); }
 }
 
-function updateDisplay(presenterNum, label, areaCls) {
-  document.getElementById('displayPresenter').textContent = presenterNum;
+function updateDisplay(num, label, cls) {
+  document.getElementById('displayPresenter').textContent = num;
   document.getElementById('displayLabel').textContent = label;
   const area = document.getElementById('displayArea');
-  area.classList.remove('spinning', 'result-presenter', 'result-evaluators');
-  if (areaCls) area.classList.add(areaCls);
+  area.classList.remove('spinning','result-presenter','result-evaluators');
+  if (cls) area.classList.add(cls);
 }
 
-// ===== Button management =====
+// ===== Button =====
 
 function updateButton() {
   const btn = document.getElementById('btnDraw');
-  btn.classList.remove('drawing', 'next-round');
+  btn.classList.remove('drawing','next-round');
   btn.disabled = false;
 
+  const drawn = currentEvaluators.length;
+
   switch (phase) {
-    case 'idle':
-      btn.textContent = '开始抽取汇报组';
-      break;
-    case 'drawing_presenter':
-      btn.textContent = '停止抽取';
-      btn.classList.add('drawing');
-      break;
+    case 'idle': btn.textContent = '开始抽取汇报组'; break;
+    case 'drawing_presenter': btn.textContent = '停止抽取'; btn.classList.add('drawing'); break;
     case 'presenter_done':
-      btn.textContent = '抽取 4 组点评';
-      break;
-    case 'drawing_evaluators':
-      btn.textContent = '停止抽取';
-      btn.classList.add('drawing');
-      break;
+    case 'evaluator_partial':
+      btn.textContent = '抽取点评组 ('+(drawn+1)+'/'+EVAL_COUNT+')'; break;
+    case 'drawing_evaluator': btn.textContent = '停止抽取'; btn.classList.add('drawing'); break;
     case 'evaluators_done': {
       const avail = getAvailablePresenters();
-      if (avail.length === 0) {
-        btn.textContent = '全部完成！';
-        btn.disabled = true;
-      } else {
-        btn.textContent = '下一轮（抽汇报组）';
-        btn.classList.add('next-round');
-      }
+      btn.textContent = avail.length > 0 ? '下一轮（抽汇报组）' : '全部完成！';
+      if (avail.length === 0) btn.disabled = true;
+      else btn.classList.add('next-round');
       break;
     }
-    case 'complete':
-      btn.textContent = '全部完成！';
-      btn.disabled = true;
-      break;
+    case 'complete': btn.textContent = '全部完成！'; btn.disabled = true; break;
   }
 }
 
-// ===== Drawing logic =====
+// ===== Main toggle =====
 
 function toggleDraw() {
   switch (phase) {
-    case 'idle':        startDrawPresenter(); break;
-    case 'drawing_presenter':  stopDrawPresenter(); break;
-    case 'presenter_done':    startDrawEvaluators(); break;
-    case 'drawing_evaluators':  stopDrawEvaluators(); break;
+    case 'idle':             startDrawPresenter(); break;
+    case 'drawing_presenter': stopDrawPresenter(); break;
+    case 'presenter_done':
+    case 'evaluator_partial': startDrawOneEvaluator(); break;
+    case 'drawing_evaluator': stopDrawEvaluator(); break;
     case 'evaluators_done':   nextRound(); break;
-    case 'complete':       break;
+    case 'complete':          break;
   }
 }
 
-// ----- Draw Presenter -----
+// ===== Draw Presenter =====
 
 function startDrawPresenter() {
   const available = getAvailablePresenters();
-  if (available.length === 0) {
-    phase = 'complete';
-    updateDisplay('!', '所有小组已汇报完毕', '');
-    updateButton();
-    updatePhaseIndicator();
-    return;
-  }
+  if (available.length === 0) { phase = 'complete'; updateDisplay('!','所有小组已汇报完毕',''); updateButton(); updatePhaseIndicator(); return; }
 
-  spinning = true;
-  currentPresenter = null;
-  currentEvaluators = [];
+  spinning = true; currentPresenter = null; currentEvaluators = []; preSelectedEvaluators = [];
   phase = 'drawing_presenter';
-
-  updateButton();
-  updatePhaseIndicator();
+  updateButton(); updatePhaseIndicator();
   document.getElementById('btnReset').disabled = true;
 
   const area = document.getElementById('displayArea');
-  area.classList.remove('result-presenter', 'result-evaluators');
-  area.classList.add('spinning');
+  area.classList.remove('result-presenter','result-evaluators'); area.classList.add('spinning');
   document.getElementById('resultText').style.display = 'none';
+  document.getElementById('evalActionHint').style.display = 'none';
   document.getElementById('evaluatorSection').classList.remove('visible');
-  updateDisplay('?', '正在抽取汇报组...', '');
+  updateDisplay('?','正在抽取汇报组...','');
 
-  // Pre-select result: first draw ever → Group 1; otherwise random
-  let pick;
-  if (rounds.length === 0) {
-    pick = 1;
-  } else {
-    pick = available[Math.floor(Math.random() * available.length)];
-  }
+  // First draw ever → Group 1; otherwise random
+  const isFirstEver = rounds.length === 0 && loadArchive().length === 0;
+  const pick = isFirstEver ? 1 : available[Math.floor(Math.random() * available.length)];
 
-  runPresenterSpin(available, pick, () => stopDrawPresenter(pick));
+  runSpin(available, pick, () => stopDrawPresenter(pick));
 }
 
 function stopDrawPresenter(pick) {
-  spinning = false;
-  if (spinTimer) { clearTimeout(spinTimer); spinTimer = null; }
-
-  currentPresenter = pick;
+  spinning = false; if (spinTimer) { clearTimeout(spinTimer); spinTimer = null; }
+  currentPresenter = pick; currentEvaluators = []; preSelectedEvaluators = [];
   phase = 'presenter_done';
-
-  rounds.push({presenter: pick, evaluators: []});
-  saveRounds();
-  // Save to persistent archive immediately
-  saveArchiveEntry({
-    presenter: pick,
-    evaluators: [],
-    timestamp: new Date().toISOString()
-  });
+  rounds.push({presenter: pick, evaluators: []}); saveRounds();
+  saveArchiveEntry({presenter: pick, evaluators: [], timestamp: new Date().toISOString()});
 
   const area = document.getElementById('displayArea');
-  area.classList.remove('spinning');
-  area.classList.add('result-presenter');
-  updateDisplay(pick, '第' + pick + '组', 'result-presenter');
+  area.classList.remove('spinning'); area.classList.add('result-presenter');
+  updateDisplay(pick, '第'+pick+'组', 'result-presenter');
   document.getElementById('resultText').style.display = 'block';
-
   document.getElementById('evaluatorSection').classList.add('visible');
   renderEvaluatorSlots();
 
-  updateButton();
-  updatePhaseIndicator();
+  playReveal();
+  updateButton(); updatePhaseIndicator();
   document.getElementById('btnReset').disabled = false;
-  renderGrid();
-  renderRoundHistory();
-  updateStats();
-  renderArchive();
+  renderGrid(); renderRoundHistory(); updateStats(); renderArchive();
+
+  // Pre-select evaluators (will be revealed one by one)
+  preSelectedEvaluators = preSelectAllEvaluators();
 }
 
-// ----- Draw Evaluators -----
+// ===== Draw One Evaluator =====
 
-function startDrawEvaluators() {
-  const available = getAvailableEvaluators();
-  if (available.length < EVAL_COUNT) {
-    alert('可用点评组不足4组，请先重置。');
-    return;
+function startDrawOneEvaluator() {
+  const drawn = currentEvaluators.length;
+  if (drawn >= EVAL_COUNT) return;
+
+  // If first draw, pre-select (may already be done in stopDrawPresenter)
+  if (preSelectedEvaluators.length === 0) {
+    preSelectedEvaluators = preSelectAllEvaluators();
   }
 
-  spinning = true;
-  currentEvaluators = [];
-  phase = 'drawing_evaluators';
-
-  updateButton();
-  updatePhaseIndicator();
+  spinning = true; phase = 'drawing_evaluator';
+  updateButton(); updatePhaseIndicator();
   document.getElementById('btnReset').disabled = true;
 
   const area = document.getElementById('displayArea');
-  area.classList.remove('result-presenter');
-  area.classList.add('spinning');
+  area.classList.remove('result-presenter','result-evaluators'); area.classList.add('spinning');
   document.getElementById('evalActionHint').style.display = 'none';
-  updateDisplay(currentPresenter, '正在抽取 4 组点评...', '');
+  document.getElementById('evalSectionTitle').textContent = '点评组（'+(drawn+1)+'/'+EVAL_COUNT+'）';
+  updateDisplay(currentPresenter, '正在抽取点评组 ('+(drawn+1)+'/'+EVAL_COUNT+')...', '');
 
-  // Pre-select 4 evaluators
-  const pool = [...available];
-  const picked = [];
-  for (let i = 0; i < EVAL_COUNT; i++) {
-    const idx = Math.floor(Math.random() * pool.length);
-    picked.push(pool.splice(idx, 1)[0]);
-  }
-  picked.sort((a, b) => a - b);
-
-  // Show cycling through available until stopped
-  runSpin(available, () => stopDrawEvaluators(picked));
+  // Spin through ALL available evaluator candidates
+  const candidates = getAvailableEvaluators();
+  runSpin(candidates, preSelectedEvaluators[drawn], () => revealOneEvaluator(preSelectedEvaluators[drawn]));
 }
 
-function stopDrawEvaluators(picked) {
-  spinning = false;
-  if (spinTimer) { clearTimeout(spinTimer); spinTimer = null; }
+function revealOneEvaluator(g) {
+  spinning = false; if (spinTimer) { clearTimeout(spinTimer); spinTimer = null; }
 
-  currentEvaluators = picked;
+  currentEvaluators.push(g);
+  const drawn = currentEvaluators.length;
 
-  // Update current round
+  // Update round data
   const lastRound = rounds[rounds.length - 1];
-  if (lastRound && lastRound.presenter === currentPresenter) {
-    lastRound.evaluators = picked;
-  }
+  if (lastRound && lastRound.presenter === currentPresenter) lastRound.evaluators = [...currentEvaluators];
   saveRounds();
+  updateArchiveLast(a => { a.evaluators = [...currentEvaluators]; a.timestamp = new Date().toISOString(); });
 
-  // Update archive entry
-  const archive = loadArchive();
-  if (archive.length > 0) {
-    const lastArchive = archive[archive.length - 1];
-    if (lastArchive.presenter === currentPresenter && lastArchive.evaluators.length === 0) {
-      lastArchive.evaluators = picked;
-      lastArchive.timestamp = new Date().toISOString();
-      localStorage.setItem('group_rounds_archive', JSON.stringify(archive));
-    }
+  if (drawn >= EVAL_COUNT) {
+    phase = 'evaluators_done';
+    const area = document.getElementById('displayArea');
+    area.classList.remove('spinning'); area.classList.add('result-evaluators');
+    updateDisplay(currentPresenter, '第'+currentPresenter+'组', 'result-evaluators');
+    document.getElementById('resultText').style.display = 'block';
+    document.getElementById('evalSectionTitle').textContent = '点评组（全部抽完）';
+    renderEvaluatorSlots();
+    setTimeout(() => { document.getElementById('evalActionHint').style.display = 'block'; }, 800);
+    playFinish();
+  } else {
+    phase = 'evaluator_partial';
+    updateDisplay(currentPresenter, '第'+currentPresenter+'组', 'result-presenter');
+    document.getElementById('resultText').style.display = 'block';
+    document.getElementById('evalSectionTitle').textContent = '点评组（已抽 '+drawn+'/'+EVAL_COUNT+'）';
+    renderEvaluatorSlots();
+    playReveal();
   }
 
-  phase = 'evaluators_done';
-
-  const area = document.getElementById('displayArea');
-  area.classList.remove('spinning');
-  area.classList.add('result-evaluators');
-  updateDisplay(currentPresenter, '第' + currentPresenter + '组', 'result-evaluators');
-  document.getElementById('resultText').style.display = 'block';
-
-  renderEvaluatorSlots();
-  document.getElementById('evaluatorSection').classList.add('visible');
-  setTimeout(() => {
-    document.getElementById('evalActionHint').style.display = 'block';
-  }, 800);
-
-  updateButton();
-  updatePhaseIndicator();
+  updateButton(); updatePhaseIndicator();
   document.getElementById('btnReset').disabled = false;
-  renderGrid();
-  renderRoundHistory();
-  updateStats();
-  renderArchive();
+  renderGrid(); renderRoundHistory(); updateStats(); renderArchive();
 }
 
-// ----- Presenter spin: trajectory ends at preSelectedPick -----
-// Builds a sequence: cycles through available groups, always ending at preSelectedPick.
-// This ensures the last flashing group IS the result — no jump.
-
-function runPresenterSpin(available, preSelectedPick, onStop) {
-  const resultIdx = available.indexOf(preSelectedPick);
-  const numCycles = 3; // full cycles through the list before landing
-
-  const sequence = [];
-  for (let c = 0; c < numCycles; c++) {
-    for (let i = 0; i < available.length; i++) {
-      sequence.push(available[i]);
-    }
-  }
-  // Final partial cycle: go to result exactly
-  for (let i = 0; i <= resultIdx; i++) {
-    sequence.push(available[i]);
-  }
-
-  playSequence(sequence, onStop);
+function stopDrawEvaluator() {
+  // Not used in one-at-a-time mode (auto-stop via runSpin), kept for symmetry
 }
 
-// ----- Generic spin: cycles through items, stopping with pre-determined result -----
-// For evaluators, it flashes available evaluator candidates; the final result is
-// determined separately but the spin visually cycles through candidates.
+// ===== Spin Engine =====
 
-function runSpin(items, onStop) {
-  // Just cycle through items for a few seconds, caller decides result
-  const numCycles = 3;
-  const sequence = [];
-  for (let c = 0; c < numCycles; c++) {
-    for (let i = 0; i < items.length; i++) {
-      sequence.push(items[i]);
-    }
-  }
+function runSpin(items, target, onStop) {
+  const targetIdx = items.indexOf(target);
+  const cycles = 3;
+  const seq = [];
+  for (let c = 0; c < cycles; c++) for (let i = 0; i < items.length; i++) seq.push(items[i]);
+  for (let i = 0; i <= targetIdx; i++) seq.push(items[i]);
 
-  playSequence(sequence, onStop);
-}
-
-// ----- Shared: play a pre-built sequence at decreasing speed -----
-
-function playSequence(sequence, onStop) {
   let idx = 0;
-
   function getDelay() {
-    // Speed curve: fast start, graceful deceleration
-    const progress = idx / sequence.length;
-    if (progress < 0.45) return 50;       // fast
-    if (progress < 0.70) return 100;      // medium
-    if (progress < 0.90) return 200;      // slow
-    return 320;                           // very slow (final approach)
+    const p = idx / seq.length;
+    if (p < 0.45) return 50;
+    if (p < 0.70) return 110;
+    if (p < 0.90) return 220;
+    return 350;
   }
 
   function step() {
-    if (idx >= sequence.length) {
-      onStop();
-      return;
-    }
-
-    const g = sequence[idx];
-    updateDisplay(g, '第' + g + '组', '');
-
-    // Keep spinning class but don't call renderGrid for spin (performance)
-    // Flash highlight the current group in the grid
+    if (idx >= seq.length) { onStop(); return; }
+    const g = seq[idx];
+    updateDisplay(g, '第'+g+'组', '');
     renderGrid(g);
-
+    playTick();
     idx++;
     spinTimer = setTimeout(step, getDelay());
   }
-
   step();
 }
 
-// ----- Next Round -----
+// ===== Next Round =====
 
 function nextRound() {
-  currentPresenter = null;
-  currentEvaluators = [];
+  currentPresenter = null; currentEvaluators = []; preSelectedEvaluators = [];
   phase = 'idle';
-
   const area = document.getElementById('displayArea');
-  area.classList.remove('spinning', 'result-presenter', 'result-evaluators');
-  updateDisplay('?', '准备开始', '');
+  area.classList.remove('spinning','result-presenter','result-evaluators');
+  updateDisplay('?','准备开始','');
   document.getElementById('resultText').style.display = 'none';
   document.getElementById('evalActionHint').style.display = 'none';
   document.getElementById('evaluatorSection').classList.remove('visible');
   renderEvaluatorSlots();
-
-  const avail = getAvailablePresenters();
-  if (avail.length === 0) {
-    phase = 'complete';
-  }
-
-  updateButton();
-  updatePhaseIndicator();
-  renderGrid();
-  renderRoundHistory();
-  updateStats();
+  if (getAvailablePresenters().length === 0) phase = 'complete';
+  updateButton(); updatePhaseIndicator();
+  renderGrid(); renderRoundHistory(); updateStats();
 }
 
 // ===== Reset =====
 
 function resetAll() {
-  if (spinning) {
-    if (spinTimer) clearTimeout(spinTimer);
-    spinning = false;
-  }
-  rounds = [];
-  currentPresenter = null;
-  currentEvaluators = [];
-  phase = 'idle';
-  saveRounds();
-
+  if (spinning) { if (spinTimer) clearTimeout(spinTimer); spinning = false; }
+  rounds = []; currentPresenter = null; currentEvaluators = []; preSelectedEvaluators = [];
+  phase = 'idle'; saveRounds();
   const area = document.getElementById('displayArea');
-  area.classList.remove('spinning', 'result-presenter', 'result-evaluators');
-  updateDisplay('?', '准备开始', '');
+  area.classList.remove('spinning','result-presenter','result-evaluators');
+  updateDisplay('?','准备开始','');
   document.getElementById('resultText').style.display = 'none';
   document.getElementById('evalActionHint').style.display = 'none';
   document.getElementById('evaluatorSection').classList.remove('visible');
+  document.getElementById('evalSectionTitle').textContent = '点评组（逐个抽取）';
   renderEvaluatorSlots();
-
-  updateButton();
-  updatePhaseIndicator();
+  updateButton(); updatePhaseIndicator();
   document.getElementById('btnReset').disabled = false;
-  renderGrid();
-  renderRoundHistory();
-  updateStats();
+  renderGrid(); renderRoundHistory(); updateStats();
 }
 
 // ===== Init =====
@@ -874,61 +769,67 @@ function resetAll() {
 function init() {
   rounds = loadRounds();
 
-  // Find in-progress round
+  // Sound prefs
+  try { soundEnabled = localStorage.getItem('group_sound_enabled') !== '0'; } catch(e) { soundEnabled = true; }
+  if (!soundEnabled) { document.getElementById('soundToggle').innerHTML = '&#128263;'; document.getElementById('soundToggle').classList.add('muted'); }
+
+  // If completely fresh (no rounds ever), pre-mark 1,3,6 as presented
+  if (rounds.length === 0 && loadArchive().length === 0) {
+    PRE_DRAWN.forEach(g => {
+      rounds.push({presenter: g, evaluators: []});
+      saveArchiveEntry({presenter: g, evaluators: [], timestamp: new Date('2026-06-05').toISOString()});
+    });
+    saveRounds();
+  }
+
+  // Restore state
   const inProgress = rounds.find(r => r.evaluators.length === 0);
   if (inProgress) {
-    currentPresenter = inProgress.presenter;
-    currentEvaluators = [];
+    currentPresenter = inProgress.presenter; currentEvaluators = [];
     phase = 'presenter_done';
   } else if (rounds.length > 0) {
     const last = rounds[rounds.length - 1];
-    if (last.evaluators.length > 0) {
-      currentPresenter = last.presenter;
-      currentEvaluators = last.evaluators;
+    if (last.evaluators.length > 0 && last.evaluators.length < EVAL_COUNT) {
+      currentPresenter = last.presenter; currentEvaluators = [...last.evaluators];
+      phase = 'evaluator_partial';
+    } else if (last.evaluators.length >= EVAL_COUNT) {
+      currentPresenter = last.presenter; currentEvaluators = [...last.evaluators];
       phase = 'evaluators_done';
     }
   }
 
-  // Check if all done
-  if (phase === 'idle' || phase === 'evaluators_done') {
-    const avail = getAvailablePresenters();
-    if (avail.length === 0 && rounds.every(r => r.evaluators.length > 0)) {
-      phase = 'complete';
-    }
-  }
+  if (getAvailablePresenters().length === 0 && rounds.every(r => r.evaluators.length >= EVAL_COUNT)) phase = 'complete';
 
   // Restore UI
   switch (phase) {
     case 'presenter_done':
-      updateDisplay(currentPresenter, '第' + currentPresenter + '组', 'result-presenter');
+      updateDisplay(currentPresenter, '第'+currentPresenter+'组', 'result-presenter');
       document.getElementById('resultText').style.display = 'block';
       document.getElementById('evaluatorSection').classList.add('visible');
+      renderEvaluatorSlots();
+      break;
+    case 'evaluator_partial':
+      updateDisplay(currentPresenter, '第'+currentPresenter+'组', 'result-presenter');
+      document.getElementById('resultText').style.display = 'block';
+      document.getElementById('evaluatorSection').classList.add('visible');
+      document.getElementById('evalSectionTitle').textContent = '点评组（已抽 '+currentEvaluators.length+'/'+EVAL_COUNT+'）';
       renderEvaluatorSlots();
       break;
     case 'evaluators_done':
-      updateDisplay(currentPresenter, '第' + currentPresenter + '组', 'result-evaluators');
+      updateDisplay(currentPresenter, '第'+currentPresenter+'组', 'result-evaluators');
       document.getElementById('resultText').style.display = 'block';
       document.getElementById('evaluatorSection').classList.add('visible');
+      document.getElementById('evalSectionTitle').textContent = '点评组（全部抽完）';
       renderEvaluatorSlots();
       document.getElementById('evalActionHint').style.display = 'block';
       break;
-    case 'complete':
-      updateDisplay('!', '全部完成', '');
-      break;
-    default:
-      break;
+    case 'complete': updateDisplay('!','全部完成',''); break;
+    default: break;
   }
 
-  updateButton();
-  updatePhaseIndicator();
-  renderGrid();
-  renderRoundHistory();
-  updateStats();
-  renderArchive();
-
-  if (phase === 'complete') {
-    document.getElementById('btnDraw').disabled = true;
-  }
+  updateButton(); updatePhaseIndicator();
+  renderGrid(); renderRoundHistory(); updateStats(); renderArchive();
+  if (phase === 'complete') document.getElementById('btnDraw').disabled = true;
 }
 
 init();
